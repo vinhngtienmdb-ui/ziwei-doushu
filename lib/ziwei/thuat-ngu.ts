@@ -148,3 +148,18 @@ export function tenNguHanh(chuHan: string, tuyChon?: TuyChonThuatNgu): string {
   const tenViet = NGU_HANH[chuHan];
   return tenViet ? ghepChuHan(tenViet, chuHan, tuyChon) : chuHan;
 }
+
+/** Mười hai con giáp theo cách gọi của Việt Nam (khác Trung Quốc: Sửu là Trâu, Mão là Mèo). */
+const CON_GIAP: readonly string[] = ['Chuột', 'Trâu', 'Hổ', 'Mèo', 'Rồng', 'Rắn', 'Ngựa', 'Dê', 'Khỉ', 'Gà', 'Chó', 'Lợn'];
+
+/** Con giáp theo chỉ số địa chi 0–11, ví dụ 3 (Mão) → Mèo. */
+export function tenConGiap(chiSoDiaChi: number): string {
+  return CON_GIAP[chiSoDiaChi] ?? '';
+}
+
+/** Năm âm lịch dạng "Kỷ Mão (Mèo)". Năm dương lịch 4 sau Công nguyên là Giáp Tý. */
+export function tenNamAmLich(namAmLich: number): string {
+  const chiSoCan = (((namAmLich - 4) % 10) + 10) % 10;
+  const chiSoChi = (((namAmLich - 4) % 12) + 12) % 12;
+  return `${THIEN_CAN[chiSoCan]} ${DIA_CHI[chiSoChi]} (${CON_GIAP[chiSoChi]})`;
+}

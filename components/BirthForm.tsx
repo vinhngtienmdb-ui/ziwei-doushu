@@ -5,6 +5,9 @@ import type { BirthInfo } from '@/lib/ziwei/types';
 import { SHICHEN } from '@/lib/ziwei/constants';
 import { useTheme } from '@/components/ThemeProvider';
 import { PROVINCES } from '@/lib/ziwei/cities';
+import SearchableSelect from '@/components/SearchableSelect';
+import { isValidLunarDate, leapMonthOfLunarYear, lunarToSolar, solarToLunar } from '@/lib/ziwei/lunar-solar';
+import { tenNamAmLich } from '@/lib/ziwei/thuat-ngu';
 import { formToBirthInfo, calcTrueSolarBranch, KINH_TUYEN_CHUAN_GMT7 } from '@/lib/ziwei/share';
 
 export interface BirthFormState {
@@ -12,6 +15,10 @@ export interface BirthFormState {
   year: string;
   month: string;
   day: string;
+  /** Lịch của ngày nhập: dương lịch (mặc định) hoặc âm lịch */
+  calendar?: 'solar' | 'lunar';
+  /** Chỉ dùng với âm lịch: ngày thuộc tháng nhuận */
+  isLeapMonth?: boolean;
   clockHour: string;
   clockMinute: string;
   unknownTime: boolean;
@@ -39,6 +46,10 @@ function isValidDate(y: number, m: number, d: number): boolean {
   return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
 }
 
+function pad2(n: number | string): string {
+  return String(n).padStart(2, '0');
+}
+
 export default function BirthForm({ onSubmit, loading, initialData, onFormSave, hideSubmit }: BirthFormProps) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
@@ -48,6 +59,8 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
     year: initialData?.year ?? '',
     month: initialData?.month ?? '',
     day: initialData?.day ?? '',
+    calendar: initialData?.calendar ?? 'solar',
+    isLeapMonth: initialData?.isLeapMonth ?? false,
     clockHour: initialData?.clockHour ?? '8',
     clockMinute: initialData?.clockMinute ?? '0',
     unknownTime: initialData?.unknownTime ?? false,
@@ -88,13 +101,21 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
   const m = parseInt(form.month) || 0;
   const d = parseInt(form.day) || 0;
 
+  const isLunar = form.calendar === 'lunar';
+  // Tháng nhuận chỉ tồn tại khi năm âm lịch có nhuận và đúng vào tháng đang chọn
+  const canLeap = isLunar && y > 0 && m > 0 && leapMonthOfLunarYear(y) === m;
+  const useLeap = canLeap && !!form.isLeapMonth;
+
   const errors = {
     year: !form.year ? 'Vui lòng chọn năm sinh'
       : y < 1900 || y > 2026 ? 'Năm hợp lệ: 1900–2026'
       : '',
     month: !form.month ? 'Vui lòng chọn tháng' : '',
     day: !form.day ? 'Vui lòng chọn ngày'
-      : form.year && form.month && !isValidDate(y, m, d) ? `Tháng ${m} không có ngày ${d}`
+      : form.year && form.month
+        ? (isLunar
+          ? (isValidLunarDate(y, m, d, useLeap) ? '' : `Tháng ${m}${useLeap ? ' nhuận' : ''} âm lịch năm ${y} không có ngày ${d}`)
+          : (isValidDate(y, m, d) ? '' : `Tháng ${m} không có ngày ${d}`))
       : '',
   };
   const hasError = Object.values(errors).some(Boolean);
@@ -110,14 +131,42 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
 
   // ─── Summary chip：全部必填完成后显示 ───────────────────
   const showSummary = steps[0] && steps[2] && !hasError;
+  // Ngày tương ứng ở lịch còn lại và năm âm lịch (con giáp theo cách gọi của Việt Nam)
+  let calendarNote = '';
+  if (!errors.year && !errors.month && !errors.day && y && m && d) {
+    if (isLunar) {
+      const solar = lunarToSolar(y, m, d, useLeap);
+      if (solar) calendarNote = `Dương lịch: ${pad2(solar.day)}/${pad2(solar.month)}/${solar.year} · Năm ${tenNamAmLich(y)}`;
+    } else {
+      const lunar = solarToLunar(y, m, d);
+      if (lunar) calendarNote = `Âm lịch: ${pad2(lunar.day)}/${pad2(lunar.month)}${lunar.isLeapMonth ? ' (nhuận)' : ''}/${lunar.year} · Năm ${tenNamAmLich(lunar.year)}`;
+    }
+  }
+
   const summaryText = showSummary
     ? [
-        `Ngày ${d}/${m}/${y}`,
+        `${pad2(d)}/${pad2(m)}/${y}${isLunar ? ' (âm lịch)' : ''}`,
         form.city || (form.province ? form.province : ''),
         form.unknownTime ? 'Chưa rõ giờ sinh' : `Giờ ${SHICHEN_NAMES[branch]}`,
         form.gender === 'male' ? 'Nam' : 'Nữ',
       ].filter(Boolean).join(' · ')
     : '';
+
+  // Đổi lịch: nếu ngày đang nhập hợp lệ thì quy đổi sang lịch mới để người dùng không phải nhập lại
+  const handleCalendar = (target: 'solar' | 'lunar') => {
+    if (target === (form.calendar ?? 'solar')) return;
+    let next = { year: form.year, month: form.month, day: form.day, isLeapMonth: false };
+    if (y && m && d) {
+      if (target === 'lunar') {
+        const lunar = isValidDate(y, m, d) ? solarToLunar(y, m, d) : null;
+        if (lunar) next = { year: String(lunar.year), month: String(lunar.month), day: String(lunar.day), isLeapMonth: lunar.isLeapMonth };
+      } else {
+        const solar = lunarToSolar(y, m, d, useLeap);
+        if (solar) next = { year: String(solar.year), month: String(solar.month), day: String(solar.day), isLeapMonth: false };
+      }
+    }
+    setForm({ ...form, ...next, calendar: target });
+  };
 
   const handleProvince = (prov: string) => {
     const provData = PROVINCES.find(p => p.name === prov);
@@ -230,14 +279,69 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
         />
       </div>
 
-      {/* ── 出生日期 ── */}
+      {/* ── Ngày sinh ── */}
       <div style={{ marginBottom: '16px' }}>
-        <label style={{ display: 'block', fontSize: '11px', color: labelClr, marginBottom: '6px', letterSpacing: '0.05em' }}>Ngày sinh (dương lịch)</label>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: '6px', flexWrap: 'wrap' }}>
+          <label style={{ fontSize: '11px', color: labelClr, letterSpacing: '0.05em' }}>
+            Ngày sinh (dd/mm/yyyy) · {isLunar ? 'âm lịch' : 'dương lịch'}
+          </label>
+          <div role="group" aria-label="Chọn loại lịch" style={{ display: 'flex', gap: '4px' }}>
+            {([['solar', 'Dương lịch'], ['lunar', 'Âm lịch']] as const).map(([value, label]) => {
+              const active = (form.calendar ?? 'solar') === value;
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => handleCalendar(value)}
+                  aria-pressed={active}
+                  style={{
+                    padding: '4px 12px', borderRadius: '999px', fontSize: '11px', cursor: 'pointer',
+                    border: `1px solid ${active ? focusBorder : inputBorder}`,
+                    background: active ? (isDark ? 'rgba(212,168,67,0.15)' : 'rgba(180,120,20,0.12)') : 'transparent',
+                    color: active ? goldText : labelClr,
+                    fontWeight: active ? 600 : 400,
+                  }}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
           <div>
             <select
+              aria-label="Ngày"
+              value={form.day}
+              onChange={e => { setForm({ ...form, day: e.target.value }); setTouched(t => ({ ...t, day: true })); }}
+              style={showErr('day') && errors.day ? errorInputStyle : inputStyle}
+              required
+            >
+              <option value="">Ngày</option>
+              {Array.from({ length: isLunar ? 30 : 31 }, (_, i) => i + 1).map(dy => (
+                <option key={dy} value={String(dy)}>{pad2(dy)}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <select
+              aria-label="Tháng"
+              value={form.month}
+              onChange={e => { setForm({ ...form, month: e.target.value, isLeapMonth: false }); setTouched(t => ({ ...t, month: true })); }}
+              style={showErr('month') && errors.month ? errorInputStyle : inputStyle}
+              required
+            >
+              <option value="">Tháng</option>
+              {Array.from({ length: 12 }, (_, i) => i + 1).map(mo => (
+                <option key={mo} value={String(mo)}>{pad2(mo)}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <select
+              aria-label="Năm"
               value={form.year}
-              onChange={e => { setForm({ ...form, year: e.target.value }); setTouched(t => ({ ...t, year: true })); }}
+              onChange={e => { setForm({ ...form, year: e.target.value, isLeapMonth: false }); setTouched(t => ({ ...t, year: true })); }}
               style={showErr('year') && errors.year ? errorInputStyle : inputStyle}
               required
             >
@@ -246,68 +350,58 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
                 <option key={yr} value={String(yr)}>{yr}</option>
               ))}
             </select>
-            <FieldError msg={showErr('year') ? errors.year : ''} />
-          </div>
-          <div>
-            <select
-              value={form.month}
-              onChange={e => { setForm({ ...form, month: e.target.value }); setTouched(t => ({ ...t, month: true })); }}
-              style={showErr('month') && errors.month ? errorInputStyle : inputStyle}
-              required
-            >
-              <option value="">Tháng</option>
-              {Array.from({ length: 12 }, (_, i) => i + 1).map(mo => (
-                <option key={mo} value={String(mo)}>Tháng {mo}</option>
-              ))}
-            </select>
-            <FieldError msg={showErr('month') ? errors.month : ''} />
-          </div>
-          <div>
-            <select
-              value={form.day}
-              onChange={e => { setForm({ ...form, day: e.target.value }); setTouched(t => ({ ...t, day: true })); }}
-              style={showErr('day') && errors.day ? errorInputStyle : inputStyle}
-              required
-            >
-              <option value="">Ngày</option>
-              {Array.from({ length: 31 }, (_, i) => i + 1).map(dy => (
-                <option key={dy} value={String(dy)}>Ngày {dy}</option>
-              ))}
-            </select>
-            <FieldError msg={showErr('day') ? errors.day : ''} />
           </div>
         </div>
+        <FieldError msg={showErr('day') ? errors.day : showErr('month') ? errors.month : showErr('year') ? errors.year : ''} />
+        {canLeap && (
+          <label style={{ display: 'flex', alignItems: 'center', gap: '7px', marginTop: '8px', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={!!form.isLeapMonth}
+              onChange={e => setForm({ ...form, isLeapMonth: e.target.checked })}
+              style={{ width: '14px', height: '14px', cursor: 'pointer' }}
+            />
+            <span style={{ fontSize: '11px', color: labelClr }}>Tháng nhuận (năm {y} có tháng {m} nhuận)</span>
+          </label>
+        )}
+        {calendarNote && (
+          <p style={{ fontSize: '11px', color: isDark ? 'rgba(180,210,235,0.85)' : 'rgba(100,70,10,0.6)', marginTop: '6px' }}>
+            {calendarNote}
+          </p>
+        )}
       </div>
 
       {/* ── 出生地点 ── */}
       <div style={{ marginBottom: '16px' }}>
         <label style={{ display: 'block', fontSize: '11px', color: labelClr, marginBottom: '6px', letterSpacing: '0.05em' }}>Nơi sinh (dùng để hiệu chỉnh giờ mặt trời thật)</label>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-          <select
+          <SearchableSelect
+            ariaLabel="Tỉnh / Thành phố"
             value={form.province}
-            onChange={e => handleProvince(e.target.value)}
+            onChange={handleProvince}
+            options={PROVINCES.map(p => p.name)}
+            placeholder="Tỉnh / Thành phố (gõ để tìm)"
             style={inputStyle}
-            onFocus={e => { e.target.style.borderColor = focusBorder; }}
-            onBlur={e => { e.target.style.borderColor = inputBorder; }}
-          >
-            <option value="">Tỉnh / Thành phố</option>
-            {PROVINCES.map(p => (
-              <option key={p.name} value={p.name}>{p.name}</option>
-            ))}
-          </select>
-          <select
+            listBackground={isDark ? '#101a36' : '#fffaf0'}
+            listBorder={inputBorder}
+            listColor={inputClr}
+            highlightBackground={isDark ? 'rgba(212,168,67,0.18)' : 'rgba(180,120,20,0.14)'}
+            noResultsText="Không tìm thấy"
+          />
+          <SearchableSelect
+            ariaLabel="Xã / Phường"
             value={form.city}
-            onChange={e => handleCity(e.target.value)}
+            onChange={handleCity}
+            options={cityList}
             disabled={!form.province}
+            placeholder={form.province ? 'Xã / Phường (gõ để tìm)' : 'Chọn tỉnh trước'}
             style={{ ...inputStyle, opacity: form.province ? 1 : 0.45 }}
-            onFocus={e => { e.target.style.borderColor = focusBorder; }}
-            onBlur={e => { e.target.style.borderColor = inputBorder; }}
-          >
-            <option value="">{form.province ? 'Xã / Phường' : 'Chọn tỉnh trước'}</option>
-            {cityList.map(c => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
+            listBackground={isDark ? '#101a36' : '#fffaf0'}
+            listBorder={inputBorder}
+            listColor={inputClr}
+            highlightBackground={isDark ? 'rgba(212,168,67,0.18)' : 'rgba(180,120,20,0.14)'}
+            noResultsText="Không tìm thấy"
+          />
         </div>
         <AnimatePresence mode="wait">
           {form.province ? (

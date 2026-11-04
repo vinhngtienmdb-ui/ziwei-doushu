@@ -15,7 +15,7 @@
  * ⚠️ 这里**不许**出现排盘 / 时辰 / 真太阳时 / 四化 任何一行。
  *    那些属于 lib/ziwei/algorithm.ts 与 /api/generate，别顺手塞进来。
  */
-import { Lunar, LunarMonth } from 'lunar-javascript';
+import { Lunar, LunarMonth, Solar } from 'lunar-javascript';
 
 export interface SolarDate {
   year: number;
@@ -73,6 +73,27 @@ export function lunarToSolar(year: number, month: number, day: number, isLeapMon
     const result = { year: solar.getYear(), month: solar.getMonth(), day: solar.getDay() };
     if (!Number.isInteger(result.year) || !Number.isInteger(result.month) || !Number.isInteger(result.day)) return null;
     return result;
+  } catch {
+    return null;
+  }
+}
+
+export interface LunarDate {
+  year: number;
+  month: number;
+  day: number;
+  isLeapMonth: boolean;
+}
+
+/** Dương lịch sang âm lịch. Ngày không hợp lệ hoặc ngoài khoảng 1900–2050 trả về null. */
+export function solarToLunar(year: number, month: number, day: number): LunarDate | null {
+  if (!isIntInRange(year, LUNAR_YEAR_MIN, LUNAR_YEAR_MAX) || !isIntInRange(month, 1, 12) || !isIntInRange(day, 1, 31)) return null;
+  const probe = new Date(Date.UTC(year, month - 1, day));
+  if (probe.getUTCFullYear() !== year || probe.getUTCMonth() !== month - 1 || probe.getUTCDate() !== day) return null;
+  try {
+    const lunar = Solar.fromYmd(year, month, day).getLunar();
+    const lunarMonth = lunar.getMonth();
+    return { year: lunar.getYear(), month: Math.abs(lunarMonth), day: lunar.getDay(), isLeapMonth: lunarMonth < 0 };
   } catch {
     return null;
   }

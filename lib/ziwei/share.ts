@@ -1,6 +1,7 @@
 import type { BirthFormState } from '@/components/BirthForm';
 import type { BirthInfo } from './types';
 import { branchFromSolarMinutes, resolveZiweiDayOffset, shiftGregorianDate } from './true-solar-time';
+import { lunarToSolar } from './lunar-solar';
 
 /** Kinh tuyến chuẩn của múi giờ GMT+7 (Hà Nội, TP. Hồ Chí Minh), độ Đông. */
 export const KINH_TUYEN_CHUAN_GMT7 = 105;
@@ -26,6 +27,13 @@ export function formToBirthInfo(form: BirthFormState): BirthInfo {
   let m = parseInt(form.month) || 0;
   let d = parseInt(form.day) || 0;
   let hour = 0;
+
+  // Ngày nhập theo âm lịch: đổi sang dương lịch trước, vì bộ máy lập lá số và quy tắc giờ Tý muộn đều làm việc trên dương lịch.
+  // Ngày âm lịch không tồn tại thì giữ nguyên giá trị nhập, bước kiểm tra của biểu mẫu đã chặn trường hợp này từ trước.
+  if (form.calendar === 'lunar') {
+    const solar = lunarToSolar(y, m, d, !!form.isLeapMonth);
+    if (solar) ({ year: y, month: m, day: d } = solar);
+  }
 
   // 晚子时换日按真太阳时判定，与时辰支同一口径（见 true-solar-time.ts 的 resolveZiweiDayOffset）。
   // 只看钟表 23 点会和经度校正后的时辰错位：东经 100° 钟表 23:30 是真太阳时 22:10 亥时，不该换日。
@@ -57,6 +65,10 @@ export function formToSearchParams(form: BirthFormState): URLSearchParams {
   p.set('y', form.year);
   p.set('m', form.month);
   p.set('d', form.day);
+  if (form.calendar === 'lunar') {
+    p.set('cal', 'l');
+    if (form.isLeapMonth) p.set('leap', '1');
+  }
   if (form.unknownTime) {
     p.set('u', '1');
   } else {
@@ -81,6 +93,8 @@ export function searchParamsToForm(params: URLSearchParams): Partial<BirthFormSt
     year,
     month,
     day,
+    calendar: params.get('cal') === 'l' ? 'lunar' : 'solar',
+    isLeapMonth: params.get('leap') === '1',
     unknownTime: params.get('u') === '1',
     clockHour: params.get('h') || '8',
     clockMinute: params.get('mi') || '0',

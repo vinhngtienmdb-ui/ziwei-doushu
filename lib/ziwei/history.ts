@@ -24,7 +24,7 @@ export function useHistory() {
   const save = useCallback((form: BirthFormState) => {
     const label = [
       form.name,
-      `${form.day}/${form.month}/${form.year}`,
+      `${form.day.padStart(2, '0')}/${form.month.padStart(2, '0')}/${form.year}${form.calendar === 'lunar' ? ' (âm lịch)' : ''}`,
       form.city || form.province || '',
       form.gender === 'male' ? 'Nam' : 'Nữ',
     ].filter(Boolean).join(' · ');

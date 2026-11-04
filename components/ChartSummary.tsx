@@ -98,7 +98,7 @@ export default function ChartSummary({ chart }: ChartSummaryProps) {
 
         <div className="mt-4 pt-3 flex flex-wrap gap-x-4 gap-y-1 text-[10px]"
           style={{ borderTop: '1px solid var(--t-border)', color: 'var(--t-faint)' }}>
-          <span>Dương lịch {chart.birthInfo.year}-{chart.birthInfo.month}-{chart.birthInfo.day}</span>
+          <span>Dương lịch {String(chart.birthInfo.day).padStart(2, '0')}/{String(chart.birthInfo.month).padStart(2, '0')}/{chart.birthInfo.year}</span>
           <span>
             Âm lịch năm {chart.lunarInfo.lunarYear}, tháng {chart.lunarInfo.isLeapMonth ? 'nhuận ' : ''}{chart.lunarInfo.lunarMonth}, ngày {chart.lunarInfo.lunarDay}
           </span>
