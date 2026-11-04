@@ -1,6 +1,7 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { docLuongVanBan } from '@/lib/ziwei/sse';
 import type { ZiweiChart, Palace } from '@/lib/ziwei/types';
 import type { TimeView } from './TimeNav';
 import { tenSao, tenCung, tenTuHoa } from '@/lib/ziwei/thuat-ngu';
@@ -291,31 +292,18 @@ Lời khuyên cụ thể có thể thực hiện dựa trên tứ hóa này.`;
       if (!res.ok) throw new Error('Yêu cầu thất bại');
       if (!res.body) throw new Error('Không có luồng phản hồi');
 
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
       let assistantText = '';
 
       setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        for (const line of chunk.split('\n')) {
-          if (!line.startsWith('data: ')) continue;
-          const data = line.slice(6);
-          if (data === '[DONE]') break;
-          try {
-            const delta = JSON.parse(data).delta?.text ?? '';
-            assistantText += delta;
-            setMessages(prev => {
-              const updated = [...prev];
-              updated[updated.length - 1] = { role: 'assistant', content: assistantText };
-              return updated;
-            });
-          } catch { /* skip */ }
-        }
-      }
+      await docLuongVanBan(res.body, (doanMoi) => {
+        assistantText += doanMoi;
+        setMessages(prev => {
+          const updated = [...prev];
+          updated[updated.length - 1] = { role: 'assistant', content: assistantText };
+          return updated;
+        });
+      });
     } catch (e) {
       const missing = e instanceof Error && e.message === 'api-missing';
       setMessages(prev => [...prev, { role: 'assistant', content: missing ? "Chưa cấu hình khóa API cho tính năng AI. Hãy đặt ANTHROPIC_API_KEY trong tệp .env.local ở thư mục gốc dự án, rồi khởi động lại máy chủ (npm run dev). Việc lập lá số không cần khóa API." : 'Luận giải thất bại, vui lòng thử lại sau.' }]);
