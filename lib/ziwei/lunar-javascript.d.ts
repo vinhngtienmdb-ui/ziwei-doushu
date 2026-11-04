@@ -13,6 +13,15 @@ declare module 'lunar-javascript' {
     getDayZhi(): string;
     /** 换算成公历(2026-08-05 补声明:lib/ziwei/share.ts 早在用，只是从前靠 as any 绕过) */
     getSolar(): Solar;
+    /** Việc nên làm và kiêng kỵ trong ngày theo lịch vạn niên (chữ Hán) */
+    getDayYi(): string[];
+    getDayJi(): string[];
+    /** Cát thần và hung thần của ngày (chữ Hán) */
+    getDayJiShen(): string[];
+    getDayXiongSha(): string[];
+    getDayInGanZhi(): string;
+    getMonthInGanZhi(): string;
+    getYearInGanZhi(): string;
   }
 
   class Solar {

@@ -7,6 +7,7 @@ import TaiKhoanNut from '@/components/TaiKhoanNut';
 const LIEN_KET = [
   { href: '/chart', nhan: 'Lập lá số' },
   { href: '/heming', nhan: 'Hợp bàn' },
+  { href: '/lich', nhan: 'Ngày tốt xấu' },
   { href: '/library', nhan: 'Cổ thư' },
   { href: '/knowledge', nhan: 'Tri thức' },
 ];
