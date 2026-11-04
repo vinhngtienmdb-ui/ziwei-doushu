@@ -6,7 +6,7 @@ import { SHICHEN } from '@/lib/ziwei/constants';
 import { useTheme } from '@/components/ThemeProvider';
 import { PROVINCES } from '@/lib/ziwei/cities';
 import SearchableSelect from '@/components/SearchableSelect';
-import { isValidLunarDate, leapMonthOfLunarYear, lunarToSolar, solarToLunar } from '@/lib/ziwei/lunar-solar';
+import { amVietSangDuong as lunarToSolar, duongSangAmViet as solarToLunar, laNgayAmVietHopLe, thangNhuanCuaNamAmViet } from '@/lib/lich/chuyen-doi';
 import { tenNamAmLich } from '@/lib/ziwei/thuat-ngu';
 import { formToBirthInfo, calcTrueSolarBranch, KINH_TUYEN_CHUAN_GMT7 } from '@/lib/ziwei/share';
 
@@ -103,7 +103,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
 
   const isLunar = form.calendar === 'lunar';
   // Tháng nhuận chỉ tồn tại khi năm âm lịch có nhuận và đúng vào tháng đang chọn
-  const canLeap = isLunar && y > 0 && m > 0 && leapMonthOfLunarYear(y) === m;
+  const canLeap = isLunar && y > 0 && m > 0 && thangNhuanCuaNamAmViet(y) === m;
   const useLeap = canLeap && !!form.isLeapMonth;
 
   const errors = {
@@ -114,7 +114,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
     day: !form.day ? 'Vui lòng chọn ngày'
       : form.year && form.month
         ? (isLunar
-          ? (isValidLunarDate(y, m, d, useLeap) ? '' : `Tháng ${m}${useLeap ? ' nhuận' : ''} âm lịch năm ${y} không có ngày ${d}`)
+          ? (laNgayAmVietHopLe(d, m, y, useLeap) ? '' : `Tháng ${m}${useLeap ? ' nhuận' : ''} âm lịch năm ${y} không có ngày ${d}`)
           : (isValidDate(y, m, d) ? '' : `Tháng ${m} không có ngày ${d}`))
       : '',
   };

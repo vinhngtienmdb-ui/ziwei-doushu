@@ -1,7 +1,7 @@
 import type { BirthFormState } from '@/components/BirthForm';
 import type { BirthInfo } from './types';
 import { branchFromSolarMinutes, resolveZiweiDayOffset, shiftGregorianDate } from './true-solar-time';
-import { lunarToSolar } from './lunar-solar';
+import { amVietSangDuong as lunarToSolar } from '../lich/chuyen-doi';
 
 /** Kinh tuyến chuẩn của múi giờ GMT+7 (Hà Nội, TP. Hồ Chí Minh), độ Đông. */
 export const KINH_TUYEN_CHUAN_GMT7 = 105;

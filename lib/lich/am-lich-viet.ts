@@ -178,3 +178,26 @@ export function amSangDuong(ngay: number, thang: number, nam: number, nhuan: boo
   const dauThang = ngaySocDia(k + off, muiGio);
   return ngayTuSoJulius(dauThang + ngay - 1);
 }
+
+/** Ngày âm lịch có thật không (đổi sang dương lịch rồi đổi ngược lại phải ra đúng ngày đã nhập). */
+export function amLichHopLe(ngay: number, thang: number, nam: number, nhuan: boolean, muiGio = MUI_GIO_VIET_NAM): boolean {
+  if (!Number.isInteger(ngay) || ngay < 1 || ngay > 30 || thang < 1 || thang > 12) return false;
+  const duong = amSangDuong(ngay, thang, nam, nhuan, muiGio);
+  if (!duong) return false;
+  const veLai = duongSangAm(duong[0], duong[1], duong[2], muiGio);
+  return veLai.ngay === ngay && veLai.thang === thang && veLai.nam === nam && veLai.nhuan === nhuan;
+}
+
+/** Số ngày (29 hoặc 30) của một tháng âm lịch, 0 nếu tháng đó không tồn tại. */
+export function soNgayTrongThangAm(thang: number, nam: number, nhuan: boolean, muiGio = MUI_GIO_VIET_NAM): number {
+  if (!amLichHopLe(1, thang, nam, nhuan, muiGio)) return 0;
+  return amLichHopLe(30, thang, nam, nhuan, muiGio) ? 30 : 29;
+}
+
+/** Tháng nhuận (1 đến 12) của một năm âm lịch, 0 nếu năm đó không có tháng nhuận. */
+export function thangNhuanCuaNamAm(nam: number, muiGio = MUI_GIO_VIET_NAM): number {
+  for (let thang = 1; thang <= 12; thang++) {
+    if (amLichHopLe(1, thang, nam, true, muiGio)) return thang;
+  }
+  return 0;
+}
