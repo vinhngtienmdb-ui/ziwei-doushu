@@ -1,36 +1,36 @@
 /**
- * 地纪 — 倪海厦地理风水体系数据库
+ * Địa Kỷ (地纪) — cơ sở dữ liệu hệ thống địa lý phong thủy của Nghê Hải Hạ
  *
- * 「下知地理」—— 地之纪，是地理志的体系化研究。
- * 倪海厦原计划60岁后著述，利用天文地理知识与医学素养
- * 重新编写各国地理志，研究国家人性、物产与其风水地理的关系。
+ * «Dưới biết địa lý» — kỷ của đất, là sự nghiên cứu có hệ thống về địa lý chí.
+ * Nghê Hải Hạ dự định sau tuổi 60 sẽ viết, dùng kiến thức thiên văn địa lý và nền tảng y học
+ * để viết lại địa lý chí các nước, nghiên cứu mối quan hệ giữa tính người, vật sản và phong thủy địa lý của mỗi quốc gia.
  *
- * 倪师于2012年辞世，地纪未能完成，为「倪师未竟之业」。
- * 现有内容来自天纪课程中的堪舆学部分以及后人整理的遗稿。
+ * Nghê sư qua đời năm 2012, Địa Kỷ chưa hoàn thành, trở thành «sự nghiệp dang dở của Nghê sư».
+ * Nội dung hiện có đến từ phần Kham Dư học trong khóa Thiên Kỷ và di cảo do hậu học chỉnh lý.
  */
 
 import type { NiModule } from './types';
 
-// ─── 地纪模块 ────────────────────────────────────────────
+// ─── Các mô-đun Địa Kỷ ────────────────────────────────────
 export const DIJI_MODULES: NiModule[] = [
   {
     id: 'dj-guojiadili',
     category: 'diji',
-    name: '国家地理志',
+    name: 'Địa lý chí quốc gia (国家地理志)',
     nameEn: 'National Geography',
-    subtitle: '倪师未竟之业 · 遗稿研读',
-    description: '倪师计划以风水地理知识解读各国地理环境对国民性格、物产资源、国运兴衰的影响。这是倪师未能完成的宏愿。',
+    subtitle: 'Sự nghiệp dang dở của Nghê sư · Nghiên đọc di cảo',
+    description: 'Nghê sư dự định dùng kiến thức phong thủy địa lý để giải đọc ảnh hưởng của môi trường địa lý mỗi nước đối với tính cách quốc dân, tài nguyên vật sản và vận hưng suy của quốc gia. Đây là tâm nguyện lớn mà Nghê sư chưa kịp hoàn thành.',
     details: [
-      '地纪是倪海厦三大著作体系中最后计划完成的部分，原定60岁后开始著述。',
-      '核心设想是用风水地理知识重新编写各国地理志，将传统堪舆学应用于宏观国家层面。',
-      '研究方向包括：国家的地理位置、山川河流对国民性格的塑造，物产资源与风水格局的关系，历史兴衰与地理变迁的关联。',
-      '倪师于2012年辞世，地纪仅留下初步构想和天纪课程中堪舆学的理论基础。这些宝贵的思想火花值得后辈整理和传承。',
+      'Địa Kỷ là phần được dự định hoàn thành sau cùng trong ba hệ thống tác phẩm lớn của Nghê Hải Hạ, dự định bắt đầu viết sau tuổi 60.',
+      'Ý tưởng cốt lõi là dùng kiến thức phong thủy địa lý để viết lại địa lý chí các nước, đem Kham Dư học truyền thống áp dụng ở tầm quốc gia vĩ mô.',
+      'Hướng nghiên cứu gồm: vị trí địa lý của quốc gia, tác động của núi sông đối với việc hình thành tính cách quốc dân, mối quan hệ giữa vật sản tài nguyên và cách cục phong thủy, mối liên hệ giữa hưng suy lịch sử và biến đổi địa lý.',
+      'Nghê sư qua đời năm 2012, Địa Kỷ chỉ để lại ý tưởng ban đầu và nền tảng lý luận Kham Dư học trong khóa Thiên Kỷ. Những tia lửa tư tưởng quý giá này đáng để hậu bối chỉnh lý và truyền thừa.',
     ],
     references: [
-      '倪海厦《天纪》堪舆学部分',
-      '倪海厦讲课中的地理志构想',
+      'Phần Kham Dư học trong «Thiên Kỷ» của Nghê Hải Hạ',
+      'Ý tưởng về địa lý chí trong các buổi giảng của Nghê Hải Hạ',
     ],
-    keywords: ['地纪', '国家地理', '风水', '地理志', '国运', '物产', '人性', '堪舆'],
+    keywords: ['Địa Kỷ', 'Địa lý quốc gia', 'Phong thủy', 'Địa lý chí', 'Vận nước', 'Vật sản', 'Tính người', 'Kham Dư'],
     icon: '⊞',
     status: 'preview',
     order: 1,
@@ -38,28 +38,28 @@ export const DIJI_MODULES: NiModule[] = [
     chapters: [
       {
         id: 'dj-dl-01',
-        title: '地纪构想',
-        subtitle: '倪师的宏愿与蓝图',
-        description: '倪师对地纪的整体构想——用风水地理知识解读国家命运。',
+        title: 'Ý tưởng Địa Kỷ',
+        subtitle: 'Tâm nguyện lớn và bản thiết kế của Nghê sư',
+        description: 'Ý tưởng tổng thể của Nghê sư về Địa Kỷ — dùng kiến thức phong thủy địa lý để giải đọc vận mệnh quốc gia.',
         keyPoints: [
-          '计划60岁后著述（倪师生于1954年）',
-          '融合天文地理知识与医学素养',
-          '重新编写各国地理志',
-          '研究人性、物产与风水地理的关系',
+          'Dự định viết sau tuổi 60 (Nghê sư sinh năm 1954)',
+          'Kết hợp kiến thức thiên văn địa lý với nền tảng y học',
+          'Viết lại địa lý chí các nước',
+          'Nghiên cứu mối quan hệ giữa tính người, vật sản và phong thủy địa lý',
         ],
-        quotes: ['我想在六十岁以后，利用我的天文地理知识与医学素养来重新写过地理志'],
+        quotes: ['Tôi muốn sau sáu mươi tuổi, dùng kiến thức thiên văn địa lý và nền tảng y học của mình để viết lại địa lý chí'],
         order: 1,
       },
       {
         id: 'dj-dl-02',
-        title: '地理与人性',
-        subtitle: '一方水土养一方人',
-        description: '不同地理环境如何塑造不同的民族性格和文化特征。',
+        title: 'Địa lý và tính người',
+        subtitle: 'Một phương nước nuôi một phương người',
+        description: 'Các môi trường địa lý khác nhau hình thành tính cách dân tộc và đặc trưng văn hóa khác nhau như thế nào.',
         keyPoints: [
-          '山地民族与平原民族的性格差异',
-          '水系分布对农业文明的影响',
-          '气候带与人的体质、性格的关系',
-          '风水好的地方必有贤人出',
+          'Khác biệt tính cách giữa dân tộc miền núi và dân tộc đồng bằng',
+          'Ảnh hưởng của hệ thống sông ngòi đối với nền văn minh nông nghiệp',
+          'Quan hệ giữa đới khí hậu với thể chất và tính cách con người',
+          'Nơi phong thủy tốt ắt có hiền tài xuất hiện',
         ],
         order: 2,
       },
@@ -68,22 +68,22 @@ export const DIJI_MODULES: NiModule[] = [
   {
     id: 'dj-kanyu-theory',
     category: 'diji',
-    name: '堪舆理论基础',
+    name: 'Nền tảng lý luận Kham Dư (堪舆理论基础)',
     nameEn: 'Feng Shui Theory',
-    subtitle: '天纪堪舆学 · 理论整理',
-    description: '整理自天纪课程中的堪舆学理论部分，作为地纪的理论基础。包括峦头学、理气学、阳宅学等核心理论。',
+    subtitle: 'Kham Dư học Thiên Kỷ · Chỉnh lý lý luận',
+    description: 'Chỉnh lý từ phần lý luận Kham Dư học trong khóa Thiên Kỷ, làm nền tảng lý luận cho Địa Kỷ. Gồm các lý luận cốt lõi như Loan Đầu học, Lý Khí học, Dương trạch học.',
     details: [
-      '虽然地纪未能独立成书，但天纪课程中已包含丰富的堪舆学理论内容。',
-      '这些理论是地纪的基础框架，涵盖了从微观（住宅）到宏观（城市、国家）的风水分析方法。',
-      '倪师采用九星派（杨救贫流派），注重峦头与理气并重。',
-      '这部分内容可以看作是地纪的「理论预科」，为后续的国家地理志研究提供方法论。',
+      'Dù Địa Kỷ chưa thành sách độc lập, khóa Thiên Kỷ đã chứa nhiều nội dung lý luận Kham Dư học phong phú.',
+      'Những lý luận này là khung nền của Địa Kỷ, bao quát các phương pháp phân tích phong thủy từ vi mô (nhà ở) đến vĩ mô (thành phố, quốc gia).',
+      'Nghê sư theo Phái Cửu Tinh (dòng Dương Cứu Bần), coi trọng cả Loan Đầu lẫn Lý Khí.',
+      'Phần này có thể xem là «dự bị lý luận» của Địa Kỷ, cung cấp phương pháp luận cho việc nghiên cứu địa lý chí quốc gia về sau.',
     ],
-    school: '九星派（杨救贫流派）',
+    school: 'Phái Cửu Tinh (dòng Dương Cứu Bần)',
     references: [
-      '倪海厦《天纪·地脉道》',
-      '杨救贫风水典籍',
+      '«Thiên Kỷ · Địa Mạch Đạo» (天纪·地脉道) của Nghê Hải Hạ',
+      'Điển tịch phong thủy của Dương Cứu Bần (杨救贫)',
     ],
-    keywords: ['堪舆', '风水理论', '峦头', '理气', '九星派', '杨救贫', '阳宅', '阴宅'],
+    keywords: ['Kham Dư', 'Lý luận phong thủy', 'Loan Đầu', 'Lý Khí', 'Phái Cửu Tinh', 'Dương Cứu Bần', 'Dương trạch', 'Âm trạch'],
     icon: '◫',
     status: 'active',
     order: 2,
@@ -91,40 +91,40 @@ export const DIJI_MODULES: NiModule[] = [
     chapters: [
       {
         id: 'dj-kt-01',
-        title: '峦头学',
-        subtitle: '山形水势的判断',
-        description: '通过观察山的形状、走向、水的流向等自然地貌来判断风水吉凶。',
+        title: 'Loan Đầu học (峦头学)',
+        subtitle: 'Phán đoán hình núi thế nước',
+        description: 'Quan sát hình dạng, hướng đi của núi và dòng chảy của nước để phán đoán cát hung phong thủy.',
         keyPoints: [
-          '龙脉：山脉的走势与气脉',
-          '穴位：藏风聚气的最佳位置',
-          '砂手：穴位左右的山势环抱',
-          '水口：水流的进出方位',
+          'Long mạch: thế đi của dãy núi và khí mạch',
+          'Huyệt vị: vị trí tốt nhất để tàng phong tụ khí',
+          'Sa thủ: thế núi ôm bọc hai bên huyệt',
+          'Thủy khẩu: phương vị nước vào ra',
         ],
         order: 1,
       },
       {
         id: 'dj-kt-02',
-        title: '理气学',
-        subtitle: '方位吉凶的推算',
-        description: '通过罗盘测量方位，结合九星飞布、八煞黄泉等理论推算吉凶。',
+        title: 'Lý Khí học (理气学)',
+        subtitle: 'Suy tính cát hung của phương vị',
+        description: 'Dùng la bàn đo phương vị, kết hợp lý luận Cửu tinh phi bố, Bát sát Hoàng tuyền để suy tính cát hung.',
         keyPoints: [
-          '罗盘的使用方法',
-          '九星飞布的原理',
-          '八煞黄泉的禁忌方位',
-          '三吉六秀的吉利方位',
+          'Cách dùng la bàn',
+          'Nguyên lý Cửu tinh phi bố',
+          'Phương vị cấm kỵ của Bát sát Hoàng tuyền',
+          'Phương vị cát lợi của Tam cát Lục tú',
         ],
         order: 2,
       },
       {
         id: 'dj-kt-03',
-        title: '阳宅应用',
-        subtitle: '居住环境的风水实践',
-        description: '将堪舆理论应用于住宅选择和布局的实际操作方法。',
+        title: 'Ứng dụng dương trạch',
+        subtitle: 'Thực hành phong thủy cho môi trường cư trú',
+        description: 'Phương pháp thực tế áp dụng lý luận Kham Dư vào việc chọn nhà và bố trí nhà ở.',
         keyPoints: [
-          '房屋坐向的选择原则',
-          '室内功能区的方位安排',
-          '周围环境的吉凶判断',
-          '化解不良风水的方法',
+          'Nguyên tắc chọn hướng ngồi của ngôi nhà',
+          'Bố trí phương vị các khu chức năng trong nhà',
+          'Phán đoán cát hung của môi trường xung quanh',
+          'Cách hóa giải phong thủy xấu',
         ],
         order: 3,
       },
@@ -133,21 +133,21 @@ export const DIJI_MODULES: NiModule[] = [
   {
     id: 'dj-yigao',
     category: 'diji',
-    name: '遗稿与后学',
+    name: 'Di cảo và hậu học (遗稿与后学)',
     nameEn: 'Legacy & Continuation',
-    subtitle: '后辈补注 · 薪火相传',
-    description: '整理倪师关于地纪的零散讲述、后辈学生的研究补注，以及地纪思想的现代延伸。',
+    subtitle: 'Hậu bối bổ chú · Lửa truyền đời đời',
+    description: 'Chỉnh lý những lời giảng rời rạc của Nghê sư về Địa Kỷ, phần nghiên cứu bổ chú của học trò hậu bối, và sự mở rộng hiện đại của tư tưởng Địa Kỷ.',
     details: [
-      '倪师虽未完成地纪专著，但在天纪课程和其他场合多次提及地纪的构想和要点。',
-      '后辈学生和研究者根据倪师的讲述和遗稿，进行了一定程度的整理和补注。',
-      '地纪的思想在现代风水研究、城市规划、环境科学等领域有着重要的参考价值。',
-      '本模块旨在收集、整理与地纪相关的所有散见材料，为后续研究提供基础。',
+      'Dù Nghê sư chưa hoàn thành chuyên khảo Địa Kỷ, nhiều lần trong khóa Thiên Kỷ và các dịp khác ông đã nhắc đến ý tưởng và điểm cốt yếu của Địa Kỷ.',
+      'Học trò hậu bối và các nhà nghiên cứu đã chỉnh lý và bổ chú ở mức độ nhất định dựa trên lời giảng và di cảo của Nghê sư.',
+      'Tư tưởng Địa Kỷ có giá trị tham khảo quan trọng trong nghiên cứu phong thủy hiện đại, quy hoạch đô thị, khoa học môi trường và các lĩnh vực khác.',
+      'Mô-đun này nhằm thu thập, chỉnh lý mọi tư liệu rải rác liên quan đến Địa Kỷ, làm nền tảng cho nghiên cứu về sau.',
     ],
     references: [
-      '倪海厦讲课实录',
-      '后辈学生笔记与研究',
+      'Ghi chép thực tế các buổi giảng của Nghê Hải Hạ',
+      'Ghi chép và nghiên cứu của học trò hậu bối',
     ],
-    keywords: ['遗稿', '后学', '补注', '传承', '现代应用'],
+    keywords: ['Di cảo', 'Hậu học', 'Bổ chú', 'Truyền thừa', 'Ứng dụng hiện đại'],
     icon: '⊟',
     status: 'coming',
     order: 3,
@@ -155,18 +155,18 @@ export const DIJI_MODULES: NiModule[] = [
     chapters: [
       {
         id: 'dj-yg-01',
-        title: '倪师地纪语录',
-        subtitle: '散见于各课程的地纪思想',
-        description: '从天纪、人纪等课程中摘录倪师关于地纪的重要论述。',
+        title: 'Ngữ lục Địa Kỷ của Nghê sư',
+        subtitle: 'Tư tưởng Địa Kỷ rải rác trong các khóa học',
+        description: 'Trích những luận thuật quan trọng của Nghê sư về Địa Kỷ từ các khóa Thiên Kỷ, Nhân Kỷ và các khóa khác.',
         keyPoints: [
-          '地纪的创作动机与规划',
-          '对各国地理环境的观察',
-          '风水与国运的关系论述',
-          '地纪与天纪、人纪的关联',
+          'Động cơ sáng tác và kế hoạch của Địa Kỷ',
+          'Quan sát về môi trường địa lý các nước',
+          'Luận thuật về quan hệ giữa phong thủy và vận nước',
+          'Mối liên hệ giữa Địa Kỷ với Thiên Kỷ và Nhân Kỷ',
         ],
         quotes: [
-          '人事的努力加上地理上的调整，一定能大于先天的命运',
-          '2/3大于1/3——人事+地理=2/3，先天命运=1/3',
+          'Nỗ lực của nhân sự cộng với điều chỉnh về địa lý, nhất định lớn hơn mệnh tiên thiên',
+          '2/3 lớn hơn 1/3 — nhân sự cộng địa lý là 2/3, mệnh tiên thiên là 1/3',
         ],
         order: 1,
       },
@@ -174,10 +174,10 @@ export const DIJI_MODULES: NiModule[] = [
   },
 ];
 
-// ─── 统计 ────────────────────────────────────────────────
+// ─── Thống kê ────────────────────────────────────────────
 export const DIJI_STATS = {
   totalModules: DIJI_MODULES.length,
   totalChapters: DIJI_MODULES.reduce((sum, m) => sum + m.chapters.length, 0),
-  status: '倪师未竟之业 · 后辈持续整理中',
-  note: '倪海厦原计划60岁后著述地纪，2012年辞世，地纪仅留下构想和理论基础',
+  status: 'Sự nghiệp dang dở của Nghê sư · Hậu bối đang tiếp tục chỉnh lý',
+  note: 'Nghê Hải Hạ dự định viết Địa Kỷ sau tuổi 60, nhưng qua đời năm 2012; Địa Kỷ chỉ để lại ý tưởng và nền tảng lý luận',
 };

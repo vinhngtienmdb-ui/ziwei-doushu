@@ -36,6 +36,7 @@
  */
 
 import { LUCUN_TABLE } from './constants';
+import { tenSao } from './thuat-ngu';
 
 /** 将前十二神，自将星起顺行。索引 0-11 = 神序。 */
 export const JIANG_QIAN_SHEN = [
@@ -160,5 +161,6 @@ export const SHIER_SHEN_EN: Record<string, string> = {
 
 /** 按语言取十二神显示名；未收录则原样返回中文，绝不显示 undefined。 */
 export function shierShenLabel(name: string, lang: string): string {
+  if (lang === 'vi') return tenSao(name);
   return lang === 'en' ? (SHIER_SHEN_EN[name] ?? name) : name;
 }
