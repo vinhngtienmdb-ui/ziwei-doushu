@@ -211,12 +211,12 @@ function useColors(theme: Theme) {
                     : 'linear-gradient(160deg,#6a4206 0%,#9a6a10 40%,#6a4206 70%,#885010 100%)',
     goldSolid:    d ? '#d4a843'                               : '#8b6410',
     goldLine:     d ? 'rgba(212,168,67,0.4)'                  : 'rgba(140,100,20,0.4)',
-    tagText:      d ? 'rgba(212,168,67,0.6)'                  : 'rgba(120,80,10,0.65)',
+    tagText:      d ? 'rgba(212,168,67,0.8)'                  : '#6b4a0b',
     // 亮色文字用冷灰系（A 方案核心）：暖底 + 冷字 → 视觉不审美疲劳
     textPrimary:  d ? '#e8eef6'                               : '#1a1d24',
     textSecond:   d ? '#b8c6df'                               : '#3a3f4a',
     textMuted:    d ? '#9db0d0'                               : '#5a6275',
-    textFaint:    d ? 'rgba(240,246,255,0.56)'                : '#9da4b3',
+    textFaint:    d ? 'rgba(240,246,255,0.62)'                : '#5f6676',
     // 冷色 accent（B 方案核心）：呼应暗色 quan 蓝；用于装饰性 glow / 链接 / 高亮
     accent:       d ? '#3a78d4'                               : '#3a5a82',
     accentSoft:   d ? 'rgba(58,120,212,0.18)'                 : 'rgba(58,90,130,0.10)',
@@ -237,11 +237,11 @@ function useColors(theme: Theme) {
     niCardShadow: d ? '0 2px 20px rgba(0,0,0,0.4)'           : '0 2px 16px rgba(140,100,20,0.1)',
     starBg:       d ? 'rgba(255,255,255,0.04)'                : 'rgba(255,255,255,0.7)',
     starBorder:   d ? 'rgba(212,168,67,0.22)'                 : 'rgba(160,120,30,0.3)',
-    starText:     d ? 'rgba(212,168,67,0.7)'                  : 'rgba(120,80,10,0.7)',
+    starText:     d ? 'rgba(212,168,67,0.9)'                  : '#6b4a0b',
     ctaBg:        d ? 'linear-gradient(135deg,#b8892a,#f0d070,#b8892a)'
                     : 'linear-gradient(135deg,#6a4206,#9a6810,#6a4206)',
     ctaText:      d ? '#08080a'                               : '#f8f3e8',
-    footerText:   d ? 'rgba(255,255,255,0.08)'                : '#d0b878',
+    footerText:   d ? '#8b9ab8'                                : '#6b5a2e',
     scrollLine:   d ? 'rgba(212,168,67,0.3)'                  : 'rgba(140,100,20,0.3)',
     scrollText:   d ? 'rgba(255,255,255,0.12)'                : '#c0a870',
     altSection:   d ? 'rgba(255,255,255,0.02)'                : 'rgba(255,255,255,0.4)',

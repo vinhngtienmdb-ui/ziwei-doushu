@@ -97,7 +97,7 @@ export default function PalaceCell({
           'absolute top-1 right-1 text-[12px] font-mono tabular-nums',
           isCurrentDaXian ? 'text-purple-400' : ''
         )}
-          style={!isCurrentDaXian ? { color: 'var(--t-faint)', opacity: 0.75 } : undefined}
+          style={!isCurrentDaXian ? { color: 'var(--t-faint)' } : undefined}
         >
           {daXianAge[0]}–{daXianAge[1]}
         </div>
@@ -121,12 +121,12 @@ export default function PalaceCell({
       </div>
 
       {/* 干支 */}
-      <div className="text-[12px] font-mono mb-1" style={{ color: 'var(--t-faint)', opacity: 0.75 }}>{ganzhi}</div>
+      <div className="text-[12px] font-mono mb-1" style={{ color: 'var(--t-faint)' }}>{ganzhi}</div>
 
       {/* 主星 */}
       <div className="flex flex-col gap-0.5 flex-1">
         {majorStars.length === 0 && (
-          <span className="text-[13px] italic" style={{ color: 'var(--t-faint)', opacity: 0.6 }}>Cung trống</span>
+          <span className="text-[13px] italic" style={{ color: 'var(--t-faint)' }}>Cung trống</span>
         )}
         {majorStars.map((star) => {
           const overlaySiHua = overlayStarSiHua?.[star.name];

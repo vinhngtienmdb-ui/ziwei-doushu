@@ -5,6 +5,8 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { SITE_URL } from '@/lib/site';
+import SiteHeader from '@/components/SiteHeader';
+import SiteFooter from '@/components/SiteFooter';
 
 const phongChuViet = Be_Vietnam_Pro({
   subsets: ['vietnamese', 'latin'],
@@ -61,7 +63,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen">
         <ThemeProvider>
+          <SiteHeader />
           {children}
+          <SiteFooter />
         </ThemeProvider>
         <Analytics />
         <SpeedInsights />

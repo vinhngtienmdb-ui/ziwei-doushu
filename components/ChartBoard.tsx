@@ -161,9 +161,9 @@ export default function ChartBoard({ chart, onStarSelect, onPalaceSelect, onSiHu
           <div className="text-center space-y-1">
             <div className="text-[12px] tracking-[0.1em] font-medium" style={{ color: 'var(--t-gold)' }}>Tử Vi Đẩu Số</div>
             <div className="text-[13px] space-y-0.5" style={{ color: 'var(--t-faint)' }}>
-              <div>Mệnh cung <span style={{ color: 'var(--t-gold)', opacity: 0.7 }}>{tenDiaChi(chart.mingGongBranch)}</span></div>
+              <div>Mệnh cung <span style={{ color: 'var(--t-gold)' }}>{tenDiaChi(chart.mingGongBranch)}</span></div>
               <div>Thân cung <span className="text-sky-500/70">{tenDiaChi(chart.shenGongBranch)}</span></div>
-              <div className="text-[12px]" style={{ color: 'var(--t-gold)', opacity: 0.75 }}>{tenCuc(chart.wuxingJuName)}</div>
+              <div className="text-[12px]" style={{ color: 'var(--t-gold)' }}>{tenCuc(chart.wuxingJuName)}</div>
             </div>
           </div>
 
@@ -179,7 +179,7 @@ export default function ChartBoard({ chart, onStarSelect, onPalaceSelect, onSiHu
             );
           })()}
 
-          <div className="text-[11px] text-center leading-relaxed font-mono" style={{ color: 'var(--t-faint)', opacity: 0.75 }}>
+          <div className="text-[11px] text-center leading-relaxed font-mono" style={{ color: 'var(--t-faint)' }}>
             {chart.lunarInfo.lunarYear}·{chart.lunarInfo.isLeapMonth ? 'nhuận ' : ''}
             {chart.lunarInfo.lunarMonth}·{chart.lunarInfo.lunarDay}
           </div>

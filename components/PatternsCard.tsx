@@ -25,7 +25,7 @@ export default function PatternsCard({ chart }: { chart: ZiweiChart }) {
       <div className="text-[13px] tracking-widest mb-3 flex items-center gap-2" style={{ color: 'var(--t-faint)' }}>
         <span style={{ color: 'var(--t-gold)', opacity: 0.6 }}>◉</span>
         Nhận diện cách cục (theo điều kiện nghiêm ngặt của cổ thư)
-        <span className="text-[12px] ml-auto" style={{ color: 'var(--t-faint)', opacity: 0.75 }}>{patterns.length} cách</span>
+        <span className="text-[12px] ml-auto" style={{ color: 'var(--t-faint)' }}>{patterns.length} cách</span>
       </div>
       <div className="space-y-2">
         {patterns.map((p, i) => {
@@ -57,23 +57,23 @@ export default function PatternsCard({ chart }: { chart: ZiweiChart }) {
               {p.conditions && (
                 <div className="mt-2 pl-3.5 space-y-0.5">
                   {p.conditions.required.length > 0 && (
-                    <div className="text-[12px] leading-relaxed" style={{ color: 'var(--t-text2)', opacity: 0.85 }}>
+                    <div className="text-[12px] leading-relaxed" style={{ color: 'var(--t-text2)' }}>
                       <span className="font-medium" style={{ color: 'var(--t-gold)' }}>Bắt buộc</span>
-                      <span style={{ opacity: 0.6 }}> · </span>
+                      <span style={{ color: 'var(--t-faint)' }}> · </span>
                       {p.conditions.required.join('、')}
                     </div>
                   )}
                   {p.conditions.bonus && p.conditions.bonus.length > 0 && (
-                    <div className="text-[12px] leading-relaxed" style={{ color: 'var(--t-text2)', opacity: 0.85 }}>
+                    <div className="text-[12px] leading-relaxed" style={{ color: 'var(--t-text2)' }}>
                       <span className="font-medium text-emerald-500">Cộng điểm</span>
-                      <span style={{ opacity: 0.6 }}> · </span>
+                      <span style={{ color: 'var(--t-faint)' }}> · </span>
                       {p.conditions.bonus.join('、')}
                     </div>
                   )}
                   {p.conditions.breaking && p.conditions.breaking.length > 0 && (
-                    <div className="text-[12px] leading-relaxed" style={{ color: 'var(--t-text2)', opacity: 0.85 }}>
+                    <div className="text-[12px] leading-relaxed" style={{ color: 'var(--t-text2)' }}>
                       <span className="font-medium text-orange-500">Phá cách</span>
-                      <span style={{ opacity: 0.6 }}> · </span>
+                      <span style={{ color: 'var(--t-faint)' }}> · </span>
                       {p.conditions.breaking.join('、')}
                     </div>
                   )}
@@ -81,7 +81,7 @@ export default function PatternsCard({ chart }: { chart: ZiweiChart }) {
               )}
 
               {p.source && (
-                <div className="text-[12px] mt-1.5 pl-3.5" style={{ color: 'var(--t-faint)', opacity: 0.5 }}>
+                <div className="text-[12px] mt-1.5 pl-3.5" style={{ color: 'var(--t-faint)' }}>
                   Xuất xứ · {p.source}
                 </div>
               )}

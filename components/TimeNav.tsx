@@ -32,10 +32,10 @@ export function buildSiHuaOverlay(stemIndex: number): Record<string, string> {
 }
 
 const SIHUA_COLORS: Record<string, string> = {
-  '禄': '#4ade80',
-  '权': '#60a5fa',
-  '科': '#facc15',
-  '忌': '#f87171',
+  '禄': 'var(--hoa-loc)',
+  '权': 'var(--hoa-quyen)',
+  '科': 'var(--hoa-khoa)',
+  '忌': 'var(--hoa-ky)',
 };
 
 export default function TimeNav({

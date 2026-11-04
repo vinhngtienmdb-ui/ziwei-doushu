@@ -192,7 +192,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
   const bg = isDark ? 'rgba(8,16,40,0.85)' : 'rgba(255,255,255,0.92)';
   const border = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(200,160,60,0.2)';
   // 暗色模式标签提亮：从 rgba(74,112,144,1) → rgba(180,200,225,0.9)
-  const labelClr = isDark ? 'rgba(180,200,225,0.9)' : 'rgba(120,80,10,0.55)';
+  const labelClr = isDark ? 'rgba(180,200,225,0.9)' : '#5a4210';
   const inputBg = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,252,240,0.8)';
   const inputBorder = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(200,160,60,0.25)';
   // 输入文字提亮：从 #c8d8f0 → #e8eef8
@@ -365,7 +365,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
           </label>
         )}
         {calendarNote && (
-          <p style={{ fontSize: '11px', color: isDark ? 'rgba(180,210,235,0.85)' : 'rgba(100,70,10,0.6)', marginTop: '6px' }}>
+          <p style={{ fontSize: '11px', color: isDark ? 'rgba(180,210,235,0.85)' : '#5a4210', marginTop: '6px' }}>
             {calendarNote}
           </p>
         )}
@@ -410,7 +410,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              style={{ fontSize: '10px', color: isDark ? 'rgba(180,210,235,0.85)' : 'rgba(100,70,10,0.5)', marginTop: '5px' }}
+              style={{ fontSize: '10px', color: isDark ? 'rgba(180,210,235,0.85)' : '#5a4210', marginTop: '5px' }}
             >
               {form.city || '(Chọn xã / phường)'} · Kinh độ {form.longitude.toFixed(1)}°Đ · Chênh lệch so với GMT+7: {offsetMin > 0 ? '+' : ''}{offsetMin} phút
             </motion.p>
@@ -420,7 +420,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              style={{ fontSize: '10px', color: isDark ? 'rgba(165,185,210,0.7)' : 'rgba(140,100,20,0.45)', marginTop: '5px' }}
+              style={{ fontSize: '10px', color: isDark ? 'rgba(190,205,225,0.9)' : '#66500f', marginTop: '5px' }}
             >
               * Nghê Hải Hạ luận mệnh theo giờ mặt trời thật, nên nhập nơi sinh để tự động hiệu chỉnh canh giờ
             </motion.p>
@@ -454,12 +454,12 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
           </div>
           {/* 真太阳时结果 */}
           <div style={{ textAlign: 'center', padding: '4px 0' }}>
-            <span style={{ fontSize: '10px', color: isDark ? 'rgba(170,195,220,0.75)' : 'rgba(140,100,20,0.5)' }}>Giờ mặt trời thật → </span>
+            <span style={{ fontSize: '10px', color: isDark ? 'rgba(190,205,225,0.9)' : '#66500f' }}>Giờ mặt trời thật → </span>
             <span style={{ fontSize: '15px', color: goldText, fontWeight: 600, letterSpacing: '0.02em' }}>
               Giờ {SHICHEN_NAMES[branch]}
             </span>
             {shichenInfo && (
-              <span style={{ fontSize: '10px', color: isDark ? 'rgba(170,195,220,0.75)' : 'rgba(140,100,20,0.5)', marginLeft: '4px' }}>
+              <span style={{ fontSize: '10px', color: isDark ? 'rgba(190,205,225,0.9)' : '#66500f', marginLeft: '4px' }}>
                 （{shichenInfo.range}）
               </span>
             )}
@@ -472,7 +472,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
             onChange={e => setForm({ ...form, unknownTime: e.target.checked })}
             style={{ width: '14px', height: '14px', borderRadius: '4px', cursor: 'pointer' }}
           />
-          <span style={{ fontSize: '10px', color: isDark ? 'rgba(165,185,210,0.7)' : 'rgba(140,100,20,0.45)' }}>
+          <span style={{ fontSize: '10px', color: isDark ? 'rgba(190,205,225,0.9)' : '#66500f' }}>
             Không biết giờ sinh, lập lá số theo giờ Tý (23:00–01:00)
           </span>
         </label>
@@ -485,7 +485,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
           {(['male', 'female'] as const).map(g => {
             const active = form.gender === g;
             const isMale = g === 'male';
-            const accent = isMale ? '37,99,235' : '225,29,72';
+            const accent = isDark ? (isMale ? '96,165,250' : '251,113,133') : (isMale ? '29,78,190' : '190,18,60');
             return (
               <motion.button
                 key={g}
@@ -500,7 +500,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
                   fontWeight: 500,
                   border: `1px solid ${active ? `rgba(${accent},0.6)` : inputBorder}`,
                   background: active ? `rgba(${accent},0.08)` : inputBg,
-                  color: active ? `rgba(${accent},0.9)` : (isDark ? 'rgba(190,205,225,0.7)' : 'rgba(100,80,40,0.4)'),
+                  color: active ? `rgb(${accent})` : (isDark ? 'rgba(190,205,225,0.9)' : '#5a4a28'),
                   transition: 'all 0.2s',
                   cursor: 'pointer',
                 }}
@@ -558,8 +558,8 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
             ? (isDark ? 'rgba(212,168,67,0.15)' : 'rgba(180,120,20,0.15)')
             : (isDark
               ? 'linear-gradient(135deg, rgba(180,130,40,0.9), rgba(240,200,80,0.9))'
-              : 'linear-gradient(135deg, #9a6210, #c88020)'),
-          color: loading ? (isDark ? 'rgba(212,168,67,0.4)' : 'rgba(120,80,10,0.4)') : (isDark ? '#08080a' : '#fff8e8'),
+              : 'linear-gradient(135deg, #6f4306, #8a5509)'),
+          color: loading ? (isDark ? 'rgba(212,168,67,0.4)' : '#5a4210') : (isDark ? '#08080a' : '#fff8e8'),
           boxShadow: loading ? 'none' : (isDark ? '0 4px 20px rgba(212,168,67,0.2)' : '0 4px 16px rgba(140,100,20,0.25)'),
           transition: 'all 0.2s',
         }}

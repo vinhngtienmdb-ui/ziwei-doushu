@@ -4,8 +4,12 @@ import { tenSao, tenCung, tenTuHoa, tenCuc, tenThienCan, tenDiaChi } from '@/lib
 import type { ZiweiChart } from '@/lib/ziwei/types';
 import { detectPatterns, getMingGongSummary } from '@/lib/ziwei/patterns';
 
+/** Phần nào của bảng tóm tắt được hiển thị. Bỏ trống thì hiển thị đủ cả ba phần. */
+export type PhanTomTat = 'tong-quan' | 'cach-cuc' | 'dai-han';
+
 interface ChartSummaryProps {
   chart: ZiweiChart;
+  phan?: PhanTomTat;
 }
 
 const PatternLevelStyle = {
@@ -15,7 +19,10 @@ const PatternLevelStyle = {
   caution: { dot: 'bg-orange-500', label: 'text-orange-500', badge: 'text-orange-500 bg-orange-500/10 border-orange-500/25' },
 };
 
-export default function ChartSummary({ chart }: ChartSummaryProps) {
+export default function ChartSummary({ chart, phan }: ChartSummaryProps) {
+  const hienTongQuan = !phan || phan === 'tong-quan';
+  const hienCachCuc = !phan || phan === 'cach-cuc';
+  const hienDaiHan = !phan || phan === 'dai-han';
   const patterns = detectPatterns(chart);
   const { stars: mingStars, keywords, nature } = getMingGongSummary(chart);
   const currentDx = chart.daXians[chart.currentDaXianIndex];
@@ -39,6 +46,7 @@ export default function ChartSummary({ chart }: ChartSummaryProps) {
       className="space-y-4"
     >
       {/* ── 命格总览 ── */}
+      {hienTongQuan && (
       <motion.div
         initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
@@ -52,7 +60,7 @@ export default function ChartSummary({ chart }: ChartSummaryProps) {
 
         <div className="flex flex-wrap items-start gap-4">
           <div>
-            <div className="text-[12px] mb-1.5" style={{ color: 'var(--t-faint)', opacity: 0.85 }}>Chính tinh Mệnh cung</div>
+            <div className="text-[12px] mb-1.5" style={{ color: 'var(--t-faint)' }}>Chính tinh Mệnh cung</div>
             <div className="flex items-center gap-1">
               {mingStars.length > 0 ? (
                 mingStars.map(s => (
@@ -63,13 +71,13 @@ export default function ChartSummary({ chart }: ChartSummaryProps) {
               )}
             </div>
             {nature && (
-              <div className="text-[13px] mt-1" style={{ color: 'var(--t-gold)', opacity: 0.5 }}>{nature}</div>
+              <div className="text-[13px] mt-1" style={{ color: 'var(--t-gold)' }}>{nature}</div>
             )}
           </div>
 
           {keywords.length > 0 && (
             <div>
-              <div className="text-[12px] mb-1.5" style={{ color: 'var(--t-faint)', opacity: 0.85 }}>Đặc điểm tính cách</div>
+              <div className="text-[12px] mb-1.5" style={{ color: 'var(--t-faint)' }}>Đặc điểm tính cách</div>
               <div className="flex flex-wrap gap-1.5">
                 {keywords.map(k => (
                   <span key={k} className="text-[13px] px-2 py-0.5 rounded-full"
@@ -86,7 +94,7 @@ export default function ChartSummary({ chart }: ChartSummaryProps) {
           )}
 
           <div className="ml-auto text-right">
-            <div className="text-[12px] mb-1" style={{ color: 'var(--t-faint)', opacity: 0.85 }}>Ngũ hành cục · Đại hạn hiện tại</div>
+            <div className="text-[12px] mb-1" style={{ color: 'var(--t-faint)' }}>Ngũ hành cục · Đại hạn hiện tại</div>
             <div className="text-[14px]" style={{ color: 'var(--t-text2)' }}>{tenCuc(chart.wuxingJuName)}</div>
             {currentDx && (
               <div className="text-[14px] text-purple-500 mt-0.5">
@@ -107,9 +115,10 @@ export default function ChartSummary({ chart }: ChartSummaryProps) {
         </div>
       </div>
       </motion.div>
+      )}
 
       {/* ── 本命四化 ── */}
-      {siHuaSummary.length > 0 && (
+      {hienTongQuan && siHuaSummary.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
@@ -123,10 +132,10 @@ export default function ChartSummary({ chart }: ChartSummaryProps) {
           <div className="grid grid-cols-2 gap-2">
             {siHuaSummary.map(({ name, siHua, palaceName }) => {
               const colors: Record<string, { text: string; bg: string; border: string }> = {
-                '禄': { text: '#4ade80', bg: 'rgba(74,222,128,0.06)', border: 'rgba(74,222,128,0.2)' },
-                '权': { text: '#60a5fa', bg: 'rgba(96,165,250,0.06)', border: 'rgba(96,165,250,0.2)' },
-                '科': { text: '#facc15', bg: 'rgba(250,204,21,0.06)', border: 'rgba(250,204,21,0.2)' },
-                '忌': { text: '#f87171', bg: 'rgba(248,113,113,0.06)', border: 'rgba(248,113,113,0.2)' },
+                '禄': { text: 'var(--hoa-loc)', bg: 'rgba(74,222,128,0.06)', border: 'rgba(74,222,128,0.2)' },
+                '权': { text: 'var(--hoa-quyen)', bg: 'rgba(96,165,250,0.06)', border: 'rgba(96,165,250,0.2)' },
+                '科': { text: 'var(--hoa-khoa)', bg: 'rgba(250,204,21,0.06)', border: 'rgba(250,204,21,0.2)' },
+                '忌': { text: 'var(--hoa-ky)', bg: 'rgba(248,113,113,0.06)', border: 'rgba(248,113,113,0.2)' },
               };
               const c = colors[siHua] || colors['禄'];
               return (
@@ -136,7 +145,7 @@ export default function ChartSummary({ chart }: ChartSummaryProps) {
                 >
                   <span className="font-medium">{tenSao(name, { kemChuHan: false })}</span>
                   <div className="flex items-center gap-1.5 text-right">
-                    <span style={{ opacity: 0.6 }} className="text-[12px]">{tenCung(palaceName, { kemChuHan: false })}</span>
+                    <span style={{ color: 'var(--t-faint)' }} className="text-[12px]">{tenCung(palaceName, { kemChuHan: false })}</span>
                     <span className="font-bold">{tenTuHoa(siHua, { kemChuHan: false })}</span>
                   </div>
                 </div>
@@ -148,7 +157,12 @@ export default function ChartSummary({ chart }: ChartSummaryProps) {
       )}
 
       {/* ── 格局识别 ── */}
-      {patterns.length > 0 && (
+      {hienCachCuc && patterns.length === 0 && (
+        <p className="card-glass rounded-xl p-4 text-[14px]" style={{ color: 'var(--t-text2)' }}>
+          Chưa nhận diện được cách cục nào theo điều kiện nghiêm ngặt của cổ thư.
+        </p>
+      )}
+      {hienCachCuc && patterns.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
@@ -158,7 +172,7 @@ export default function ChartSummary({ chart }: ChartSummaryProps) {
           <div className="text-[13px] tracking-widest mb-3 flex items-center gap-2" style={{ color: 'var(--t-faint)' }}>
             <span style={{ color: 'var(--t-gold)', opacity: 0.6 }}>◉</span>
             Nhận diện cách cục
-            <span className="text-[12px] ml-auto" style={{ color: 'var(--t-faint)', opacity: 0.75 }}>{patterns.length} cách cục</span>
+            <span className="text-[12px] ml-auto" style={{ color: 'var(--t-faint)' }}>{patterns.length} cách cục</span>
           </div>
           <div className="space-y-2">
             {patterns.map((p, i) => {
@@ -189,23 +203,23 @@ export default function ChartSummary({ chart }: ChartSummaryProps) {
                   {p.conditions && (
                     <div className="mt-2 pl-3.5 space-y-0.5">
                       {p.conditions.required.length > 0 && (
-                        <div className="text-[12px] leading-relaxed" style={{ color: 'var(--t-text2)', opacity: 0.85 }}>
+                        <div className="text-[12px] leading-relaxed" style={{ color: 'var(--t-text2)' }}>
                           <span className="font-medium" style={{ color: 'var(--t-gold)' }}>Bắt buộc</span>
-                          <span style={{ opacity: 0.6 }}> · </span>
+                          <span style={{ color: 'var(--t-faint)' }}> · </span>
                           {p.conditions.required.join('、')}
                         </div>
                       )}
                       {p.conditions.bonus && p.conditions.bonus.length > 0 && (
-                        <div className="text-[12px] leading-relaxed" style={{ color: 'var(--t-text2)', opacity: 0.85 }}>
+                        <div className="text-[12px] leading-relaxed" style={{ color: 'var(--t-text2)' }}>
                           <span className="font-medium text-emerald-500">Cộng điểm</span>
-                          <span style={{ opacity: 0.6 }}> · </span>
+                          <span style={{ color: 'var(--t-faint)' }}> · </span>
                           {p.conditions.bonus.join('、')}
                         </div>
                       )}
                       {p.conditions.breaking && p.conditions.breaking.length > 0 && (
-                        <div className="text-[12px] leading-relaxed" style={{ color: 'var(--t-text2)', opacity: 0.85 }}>
+                        <div className="text-[12px] leading-relaxed" style={{ color: 'var(--t-text2)' }}>
                           <span className="font-medium text-orange-500">Phá cách</span>
-                          <span style={{ opacity: 0.6 }}> · </span>
+                          <span style={{ color: 'var(--t-faint)' }}> · </span>
                           {p.conditions.breaking.join('、')}
                         </div>
                       )}
@@ -213,7 +227,7 @@ export default function ChartSummary({ chart }: ChartSummaryProps) {
                   )}
 
                   {p.source && (
-                    <div className="text-[12px] mt-1.5 pl-3.5" style={{ color: 'var(--t-faint)', opacity: 0.5 }}>
+                    <div className="text-[12px] mt-1.5 pl-3.5" style={{ color: 'var(--t-faint)' }}>
                       Xuất xứ · {p.source}
                     </div>
                   )}
@@ -226,6 +240,7 @@ export default function ChartSummary({ chart }: ChartSummaryProps) {
       )}
 
       {/* ── 大限运程 ── */}
+      {hienDaiHan && (
       <motion.div
         initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
@@ -248,17 +263,18 @@ export default function ChartSummary({ chart }: ChartSummaryProps) {
                     ? '1px solid rgba(147,51,234,0.4)'
                     : '1px solid var(--t-border)',
                   background: isCurrent ? 'rgba(147,51,234,0.08)' : 'transparent',
-                  color: isCurrent ? '#a78bfa' : 'var(--t-faint)',
+                  color: isCurrent ? 'var(--hoa-tim)' : 'var(--t-faint)',
                 }}
               >
                 <div className="font-mono tabular-nums">{dx.startAge}~{dx.endAge}</div>
-                <div className="text-[12px] mt-0.5" style={{ opacity: 0.7 }}>{tenCung(dx.palaceName, { kemChuHan: false })}</div>
+                <div className="text-[12px] mt-0.5" style={{ color: 'var(--t-faint)' }}>{tenCung(dx.palaceName, { kemChuHan: false })}</div>
               </div>
             );
           })}
         </div>
       </div>
       </motion.div>
+      )}
     </motion.div>
   );
 }

@@ -2,10 +2,17 @@
 import { useState } from 'react';
 import BirthForm from '@/components/BirthForm';
 import ChartBoard from '@/components/ChartBoard';
-import ChartSummary from '@/components/ChartSummary';
+import ChartSummary, { type PhanTomTat } from '@/components/ChartSummary';
 import InsightPanel from '@/components/InsightPanel';
 import { generateChart } from '@/lib/ziwei/algorithm';
 import type { BirthInfo, ZiweiChart, Palace } from '@/lib/ziwei/types';
+
+const CAC_THE: { khoa: PhanTomTat | 'ai'; nhan: string }[] = [
+  { khoa: 'tong-quan', nhan: 'Tổng quan' },
+  { khoa: 'cach-cuc', nhan: 'Cách cục' },
+  { khoa: 'dai-han', nhan: 'Đại hạn' },
+  { khoa: 'ai', nhan: 'AI luận giải' },
+];
 
 /**
  * 命盘页 —— 开源版「排盘引擎 Demo」
@@ -20,6 +27,7 @@ import type { BirthInfo, ZiweiChart, Palace } from '@/lib/ziwei/types';
 export default function ChartPage() {
   const [chart, setChart] = useState<ZiweiChart | null>(null);
   const [selectedPalace, setSelectedPalace] = useState<Palace | null>(null);
+  const [theDangMo, setTheDangMo] = useState<PhanTomTat | 'ai'>('tong-quan');
 
   // ── 未起盘：展示出生信息表单 ──
   if (!chart) {
@@ -57,10 +65,40 @@ export default function ChartPage() {
         }}
       >
         <ChartBoard chart={chart} onPalaceSelect={setSelectedPalace} />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 20, minWidth: 0 }}>
-          <ChartSummary chart={chart} />
-          <InsightPanel chart={chart} selectedPalace={selectedPalace} />
-        </div>
+        <aside
+          className="xl:sticky xl:top-16 xl:max-h-[calc(100vh-5rem)] xl:overflow-y-auto"
+          style={{ minWidth: 0 }}
+          aria-label="Phân tích lá số"
+        >
+          <div role="tablist" aria-label="Các phần phân tích" style={{ display: 'flex', gap: 4, marginBottom: 12, flexWrap: 'wrap' }}>
+            {CAC_THE.map(({ khoa, nhan }) => {
+              const dangMo = theDangMo === khoa;
+              return (
+                <button
+                  key={khoa}
+                  role="tab"
+                  type="button"
+                  aria-selected={dangMo}
+                  onClick={() => setTheDangMo(khoa)}
+                  style={{
+                    padding: '8px 14px', borderRadius: 999, fontSize: 14, cursor: 'pointer',
+                    border: '1px solid ' + (dangMo ? 'var(--ac)' : 'var(--bdr-heavy)'),
+                    background: dangMo ? 'var(--ac-bg)' : 'transparent',
+                    color: dangMo ? 'var(--ac)' : 'var(--tx-2)',
+                    fontWeight: dangMo ? 600 : 400,
+                  }}
+                >
+                  {nhan}
+                </button>
+              );
+            })}
+          </div>
+          <div role="tabpanel">
+            {theDangMo === 'ai'
+              ? <InsightPanel chart={chart} selectedPalace={selectedPalace} />
+              : <ChartSummary chart={chart} phan={theDangMo} />}
+          </div>
+        </aside>
       </div>
     </main>
   );
