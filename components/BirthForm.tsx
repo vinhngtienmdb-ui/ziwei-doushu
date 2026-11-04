@@ -68,7 +68,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
 
   const cityList = useMemo(() => {
     const prov = PROVINCES.find(p => p.name === form.province);
-    return prov ? prov.cities : [];
+    return prov ? prov.wards : [];
   }, [form.province]);
 
   const branch = useMemo(() => {
@@ -121,14 +121,11 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
 
   const handleProvince = (prov: string) => {
     const provData = PROVINCES.find(p => p.name === prov);
-    const firstCity = provData?.cities[0];
-    setForm({ ...form, province: prov, city: firstCity?.name || '', longitude: firstCity?.longitude ?? KINH_TUYEN_CHUAN_GMT7 });
+    setForm({ ...form, province: prov, city: '', longitude: provData?.longitude ?? KINH_TUYEN_CHUAN_GMT7 });
   };
 
   const handleCity = (cityName: string) => {
-    const prov = PROVINCES.find(p => p.name === form.province);
-    const cityData = prov?.cities.find(c => c.name === cityName);
-    setForm({ ...form, city: cityName, longitude: cityData?.longitude ?? KINH_TUYEN_CHUAN_GMT7 });
+    setForm({ ...form, city: cityName });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -306,9 +303,9 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
             onFocus={e => { e.target.style.borderColor = focusBorder; }}
             onBlur={e => { e.target.style.borderColor = inputBorder; }}
           >
-            <option value="">{form.province ? 'Thành phố' : 'Chọn tỉnh trước'}</option>
+            <option value="">{form.province ? 'Xã / Phường' : 'Chọn tỉnh trước'}</option>
             {cityList.map(c => (
-              <option key={c.name} value={c.name}>{c.name}</option>
+              <option key={c} value={c}>{c}</option>
             ))}
           </select>
         </div>
@@ -321,7 +318,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
               exit={{ opacity: 0 }}
               style={{ fontSize: '10px', color: isDark ? 'rgba(180,210,235,0.85)' : 'rgba(100,70,10,0.5)', marginTop: '5px' }}
             >
-              {form.city || '(Chọn thành phố)'} · Kinh độ {form.longitude.toFixed(1)}°Đ · Chênh lệch so với GMT+7: {offsetMin > 0 ? '+' : ''}{offsetMin} phút
+              {form.city || '(Chọn xã / phường)'} · Kinh độ {form.longitude.toFixed(1)}°Đ · Chênh lệch so với GMT+7: {offsetMin > 0 ? '+' : ''}{offsetMin} phút
             </motion.p>
           ) : (
             <motion.p
