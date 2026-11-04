@@ -79,8 +79,8 @@ export default function ChatPanel({ chart }: ChatPanelProps) {
     <div className="flex flex-col h-full rounded-xl overflow-hidden card-glass">
       {/* 标题 */}
       <div className="px-4 py-3 flex-shrink-0" style={{ borderBottom: '1px solid var(--t-border)' }}>
-        <h3 className="text-xs font-medium tracking-wide" style={{ color: 'var(--t-gold)' }}>AI luận giải lá số</h3>
-        <p className="text-[10px] mt-0.5" style={{ color: 'var(--t-faint)' }}>Tử Vi Đẩu Số chính tông Nghê Hải Hạ · Phân tích thông minh</p>
+        <h3 className="text-sm font-medium tracking-wide" style={{ color: 'var(--t-gold)' }}>AI luận giải lá số</h3>
+        <p className="text-[14px] mt-0.5" style={{ color: 'var(--t-faint)' }}>Tử Vi Đẩu Số chính tông Nghê Hải Hạ · Phân tích thông minh</p>
       </div>
 
       {/* 消息列表 */}
@@ -88,7 +88,7 @@ export default function ChatPanel({ chart }: ChatPanelProps) {
         {messages.length === 0 && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-8">
             <div className="text-4xl mb-3" style={{ color: 'var(--t-gold)', opacity: 0.15 }}>✦</div>
-            <p className="text-xs leading-relaxed" style={{ color: 'var(--t-faint)' }}>
+            <p className="text-sm leading-relaxed" style={{ color: 'var(--t-faint)' }}>
               Lá số đã được lập, bạn có thể hỏi ngay<br />
               hoặc chọn câu hỏi thường gặp bên dưới để bắt đầu
             </p>
@@ -104,7 +104,7 @@ export default function ChatPanel({ chart }: ChatPanelProps) {
               className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className="max-w-[85%] rounded-xl px-3.5 py-2.5 text-sm leading-relaxed"
+                className="max-w-[85%] rounded-xl px-3.5 py-2.5 text-base leading-relaxed"
                 style={msg.role === 'user' ? {
                   background: 'rgba(212,168,67,0.1)',
                   border: '1px solid rgba(212,168,67,0.2)',
@@ -116,9 +116,9 @@ export default function ChatPanel({ chart }: ChatPanelProps) {
                 }}
               >
                 {msg.role === 'assistant' && (
-                  <div className="text-[10px] mb-1" style={{ color: 'var(--t-faint)' }}>Thầy luận mệnh ·</div>
+                  <div className="text-[14px] mb-1" style={{ color: 'var(--t-faint)' }}>Thầy luận mệnh ·</div>
                 )}
-                <div className="whitespace-pre-wrap text-xs leading-relaxed">
+                <div className="whitespace-pre-wrap text-sm leading-relaxed">
                   {msg.content}
                   {loading && i === messages.length - 1 && msg.role === 'assistant' && (
                     <span className="inline-block w-1.5 h-3 ml-0.5 animate-pulse" style={{ background: 'var(--t-gold)', opacity: 0.6 }} />
@@ -139,7 +139,7 @@ export default function ChatPanel({ chart }: ChatPanelProps) {
                 key={i}
                 onClick={() => sendMessage(q)}
                 disabled={loading}
-                className="text-left text-[10px] rounded-lg px-2.5 py-2 transition-all line-clamp-2"
+                className="text-left text-[14px] rounded-lg px-2.5 py-2 transition-all line-clamp-2"
                 style={{
                   color: 'var(--t-text2)',
                   border: '1px solid var(--t-border)',
@@ -171,7 +171,7 @@ export default function ChatPanel({ chart }: ChatPanelProps) {
             onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage(input)}
             placeholder="Nhập câu hỏi, ví dụ: Vận tình cảm của tôi thế nào?"
             disabled={loading}
-            className="flex-1 rounded-lg px-3 py-2 text-xs focus:outline-none transition-colors"
+            className="flex-1 rounded-lg px-3 py-2 text-sm focus:outline-none transition-colors"
             style={{
               background: 'var(--t-card)',
               border: '1px solid var(--t-border)',
@@ -181,7 +181,7 @@ export default function ChatPanel({ chart }: ChatPanelProps) {
           <button
             onClick={() => sendMessage(input)}
             disabled={loading || !input.trim()}
-            className="px-3 py-2 rounded-lg text-xs font-medium transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+            className="px-3 py-2 rounded-lg text-sm font-medium transition-all disabled:opacity-30 disabled:cursor-not-allowed"
             style={{
               background: 'rgba(212,168,67,0.15)',
               border: '1px solid rgba(212,168,67,0.25)',
