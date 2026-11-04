@@ -310,7 +310,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
           <div>
-            <select
+            <select className="chon-ngay"
               aria-label="Ngày"
               value={form.day}
               onChange={e => { setForm({ ...form, day: e.target.value }); setTouched(t => ({ ...t, day: true })); }}
@@ -324,7 +324,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
             </select>
           </div>
           <div>
-            <select
+            <select className="chon-ngay"
               aria-label="Tháng"
               value={form.month}
               onChange={e => { setForm({ ...form, month: e.target.value, isLeapMonth: false }); setTouched(t => ({ ...t, month: true })); }}
@@ -338,7 +338,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
             </select>
           </div>
           <div>
-            <select
+            <select className="chon-ngay"
               aria-label="Năm"
               value={form.year}
               onChange={e => { setForm({ ...form, year: e.target.value, isLeapMonth: false }); setTouched(t => ({ ...t, year: true })); }}
@@ -433,7 +433,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
         <label style={{ display: 'block', fontSize: '11px', color: labelClr, marginBottom: '6px', letterSpacing: '0.05em' }}>Giờ sinh (giờ Hà Nội / TP. Hồ Chí Minh, GMT+7)</label>
         <div style={{ borderRadius: '14px', padding: '12px', background: panelBg, border: `1px solid ${panelBorder}`, opacity: form.unknownTime ? 0.45 : 1, pointerEvents: form.unknownTime ? 'none' : 'auto', transition: 'opacity 0.2s' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '8px' }}>
-            <select
+            <select className="chon-ngay"
               value={form.clockHour}
               onChange={e => setForm({ ...form, clockHour: e.target.value })}
               style={inputStyle}
@@ -442,7 +442,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
                 <option key={h} value={String(h)}>{h.toString().padStart(2, '0')} giờ</option>
               ))}
             </select>
-            <select
+            <select className="chon-ngay"
               value={form.clockMinute}
               onChange={e => setForm({ ...form, clockMinute: e.target.value })}
               style={inputStyle}

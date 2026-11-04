@@ -434,3 +434,10 @@ body {
    select 本身是半透明底 + 浅色字，Windows 上原生下拉列表是白底，浅灰字配白底看不清（#14） */
 [data-theme="dark"] select { color-scheme: dark; }
 [data-theme="dark"] select option { background-color: var(--bg-2); color: var(--tx-1); }
+
+/* Danh sách thả xuống của các ô chọn ngày, giờ trong biểu mẫu: nền trắng, chữ đen ở cả hai giao diện sáng và tối */
+[data-theme] select.chon-ngay { color-scheme: light; }
+[data-theme] select.chon-ngay option {
+  color: #111111;
+  background-color: #ffffff;
+}
