@@ -105,7 +105,7 @@ export default function ChartBoard({ chart, onStarSelect, onPalaceSelect, onSiHu
         animate={{ opacity: 1, y: 0 }}
         className="text-center mb-3"
       >
-        <div className="text-[10px] tracking-[0.2em] uppercase mb-1" style={{ color: 'var(--t-faint)' }}>
+        <div className="text-[13px] tracking-[0.2em] uppercase mb-1" style={{ color: 'var(--t-faint)' }}>
           Tử Vi Đẩu Số
         </div>
         <h2 className="text-sm tracking-[0.04em] font-medium" style={{ color: 'var(--t-gold)' }}>
@@ -159,11 +159,11 @@ export default function ChartBoard({ chart, onStarSelect, onPalaceSelect, onSiHu
           </div>
 
           <div className="text-center space-y-1">
-            <div className="text-[9px] tracking-[0.1em] font-medium" style={{ color: 'var(--t-gold)' }}>Tử Vi Đẩu Số</div>
-            <div className="text-[10px] space-y-0.5" style={{ color: 'var(--t-faint)' }}>
+            <div className="text-[12px] tracking-[0.1em] font-medium" style={{ color: 'var(--t-gold)' }}>Tử Vi Đẩu Số</div>
+            <div className="text-[13px] space-y-0.5" style={{ color: 'var(--t-faint)' }}>
               <div>Mệnh cung <span style={{ color: 'var(--t-gold)', opacity: 0.7 }}>{tenDiaChi(chart.mingGongBranch)}</span></div>
               <div>Thân cung <span className="text-sky-500/70">{tenDiaChi(chart.shenGongBranch)}</span></div>
-              <div className="text-[9px]" style={{ color: 'var(--t-gold)', opacity: 0.75 }}>{tenCuc(chart.wuxingJuName)}</div>
+              <div className="text-[12px]" style={{ color: 'var(--t-gold)', opacity: 0.75 }}>{tenCuc(chart.wuxingJuName)}</div>
             </div>
           </div>
 
@@ -172,14 +172,14 @@ export default function ChartBoard({ chart, onStarSelect, onPalaceSelect, onSiHu
             return (
               <div className="border border-purple-500/30 rounded-lg px-3 py-1.5 text-center"
                 style={{ background: 'rgba(147,51,234,0.06)' }}>
-                <div className="text-[8px] text-purple-500/80 mb-0.5 tracking-wider">Đại hạn hiện tại</div>
-                <div className="text-[12px] text-purple-400 font-medium tabular-nums">{dx.startAge}–{dx.endAge} tuổi</div>
-                <div className="text-[9px] text-purple-500/60">{tenCung(dx.palaceName, { kemChuHan: false })}</div>
+                <div className="text-[11px] text-purple-500/80 mb-0.5 tracking-wider">Đại hạn hiện tại</div>
+                <div className="text-[15px] text-purple-400 font-medium tabular-nums">{dx.startAge}–{dx.endAge} tuổi</div>
+                <div className="text-[12px] text-purple-500/60">{tenCung(dx.palaceName, { kemChuHan: false })}</div>
               </div>
             );
           })()}
 
-          <div className="text-[8px] text-center leading-relaxed font-mono" style={{ color: 'var(--t-faint)', opacity: 0.75 }}>
+          <div className="text-[11px] text-center leading-relaxed font-mono" style={{ color: 'var(--t-faint)', opacity: 0.75 }}>
             {chart.lunarInfo.lunarYear}·{chart.lunarInfo.isLeapMonth ? 'nhuận ' : ''}
             {chart.lunarInfo.lunarMonth}·{chart.lunarInfo.lunarDay}
           </div>
@@ -267,7 +267,7 @@ export default function ChartBoard({ chart, onStarSelect, onPalaceSelect, onSiHu
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.7 }}
-        className="mt-3 flex items-center justify-center gap-2 text-[9px] flex-wrap"
+        className="mt-3 flex items-center justify-center gap-2 text-[12px] flex-wrap"
       >
         {[
           { h: 'Hóa Lộc', c: 'text-emerald-500 border-emerald-500/30' },
