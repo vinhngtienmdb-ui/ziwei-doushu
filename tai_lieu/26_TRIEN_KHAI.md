@@ -22,11 +22,11 @@ Một dịch vụ web chạy Node có gắn đĩa bền vững (Render, Railway 
 ## 4. Kiểm tra sau khi triển khai
 - Đăng nhập Google, lưu lá số, hỏi đáp, vận hạn, tử vi năm một con giáp, xóa tài khoản thử.
 - Khởi động lại dịch vụ, xác nhận dữ liệu còn.
-- Theo dõi chi phí gọi AI trong vài ngày đầu (tử vi năm tối đa 24 bài mới mỗi 24 giờ; luận giải và vận hạn chưa giới hạn theo người dùng).
+- Theo dõi chi phí gọi AI trong vài ngày đầu (tử vi năm tối đa 24 bài mới mỗi 24 giờ; luận giải và vận hạn giới hạn theo giờ).
 
 ## 5. Cần xác nhận trước khi làm
 - Nền tảng đích và tên miền.
-- Có đặt giới hạn tần suất cho `/api/interpret` và `/api/van-han` trước khi mở công khai không.
+- Giới hạn tần suất gọi AI đã được thêm (tài liệu `22`, mục 8); cần bảo đảm nền tảng chuyển tiếp tiêu đề X-Forwarded-For đúng.
 - Phê duyệt từng lần triển khai lên môi trường thật.
 
 ## 6. Thu hồi

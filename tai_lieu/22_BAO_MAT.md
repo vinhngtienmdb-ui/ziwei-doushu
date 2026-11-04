@@ -15,5 +15,8 @@ Người dùng chỉ đọc, ghi, xóa lá số và hỏi đáp của chính mì
 ## 5. Quản lý khóa bí mật
 Khóa chỉ nằm trong `.env.local`, không đưa vào chat hoặc mã nguồn.
 
-## 8. Rủi ro đã chấp nhận
-Chưa có giới hạn tần suất theo người dùng cho `/api/interpret` và `/api/van-han`. Cần xác nhận có bổ sung không.
+## 8. Giới hạn tần suất gọi AI
+`/api/interpret` và `/api/van-han` giới hạn theo cửa sổ một giờ: 10 lần cho khách (theo địa chỉ mạng), 40 lần cho người dùng đã đăng nhập; vượt thì trả mã 429. Bộ đếm nằm trong bộ nhớ tiến trình, chỉ đúng khi chạy một bản ứng dụng và bị xóa khi khởi động lại.
+
+## 9. Rủi ro đã chấp nhận
+Khách đổi địa chỉ mạng có thể vượt giới hạn khách; chưa có trần chi phí toàn hệ thống cho hai điểm cuối này.
