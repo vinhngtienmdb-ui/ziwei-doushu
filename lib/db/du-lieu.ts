@@ -75,6 +75,12 @@ export function huyPhien(maPhien: string | undefined): void {
   layCsdl().prepare('DELETE FROM phien WHERE ma_bam = ?').run(bamMaPhien(maPhien));
 }
 
+/** Xóa hẳn người dùng cùng phiên, lá số và hỏi đáp của họ (khóa ngoại tự xóa theo). Trả về true nếu có người dùng bị xóa. */
+export function xoaNguoiDung(nguoiDungId: string): boolean {
+  const kq = layCsdl().prepare('DELETE FROM nguoi_dung WHERE id = ?').run(nguoiDungId);
+  return Number(kq.changes) > 0;
+}
+
 export function donPhienHetHan(bayGio = Date.now()): void {
   layCsdl().prepare('DELETE FROM phien WHERE het_han <= ?').run(bayGio);
 }

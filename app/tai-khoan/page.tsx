@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { layNguoiDungHienTai } from '@/lib/auth/phien';
 import { lietKeLaSo } from '@/lib/db/du-lieu';
 import NutXoaLaSo from './NutXoaLaSo';
+import NutXoaTaiKhoan from './NutXoaTaiKhoan';
 
 export const metadata = {
   title: 'Tài khoản · Lá số Tử Vi',
@@ -98,6 +99,7 @@ export default async function TrangTaiKhoan({ searchParams }: { searchParams: Pr
           <p style={{ margin: '8px 0 24px', color: 'var(--tx-2)' }}>Đang đăng nhập: <strong>{nguoiDung.ten || nguoiDung.email}</strong> ({nguoiDung.email})</p>
           <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 12 }}>Lá số đã lưu</h2>
           <DanhSachLaSo nguoiDungId={nguoiDung.id} />
+          <NutXoaTaiKhoan email={nguoiDung.email} />
         </>
       )}
     </main>

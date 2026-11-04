@@ -38,7 +38,7 @@ export default function PrivacyPage() {
         <ul style={{ paddingLeft: 24 }}>
           <li><strong>Xem</strong>: các lá số đã lưu hiển thị ở trang <a href="/tai-khoan" style={{ color: 'var(--ac)' }}>Tài khoản</a>.</li>
           <li><strong>Xóa</strong>: bấm &quot;Xóa&quot; ở từng lá số, hỏi đáp của lá số đó bị xóa theo.</li>
-          <li><strong>Xóa tài khoản hoặc yêu cầu bản sao dữ liệu</strong>: liên hệ người vận hành trang.</li>
+          <li><strong>Xóa tài khoản</strong>: ở trang <a href="/tai-khoan">Tài khoản</a>, mục           <li><strong>Xóa tài khoản hoặc yêu cầu bản sao dữ liệu</strong>: liên hệ người vận hành trang.</li>quot;Xóa tài khoản          <li><strong>Xóa tài khoản hoặc yêu cầu bản sao dữ liệu</strong>: liên hệ người vận hành trang.</li>quot; xóa vĩnh viễn tài khoản cùng mọi lá số và hỏi đáp. Muốn nhận bản sao dữ liệu, hãy liên hệ người vận hành trang.</li>
         </ul>
 
         <h2 style={tieuDe}>6. Cookie và lưu trữ cục bộ</h2>

@@ -67,6 +67,21 @@ async function chay() {
   const con = (layCsdl().prepare('SELECT COUNT(*) AS n FROM hoi_dap').get() as { n: number }).n;
   assert.equal(con, 0, 'xóa lá số xóa luôn hỏi đáp của nó');
 
+  // Xóa tài khoản: xóa sạch người dùng, phiên, lá số và hỏi đáp của người đó, không đụng dữ liệu người khác
+  const x = du.luuHoacCapNhatNguoiDung({ googleSub: 'g-x', email: 'x@example.com' });
+  const y = du.luuHoacCapNhatNguoiDung({ googleSub: 'g-y', email: 'y@example.com' });
+  const laSoX = du.luuLaSo(x.id, 'Của X', { year: '1990' }) as string;
+  const laSoY = du.luuLaSo(y.id, 'Của Y', { year: '1991' }) as string;
+  du.themHoiDap(x.id, laSoX, [{ vaiTro: 'user', noiDung: 'hỏi', an: false }]);
+  const phienX = du.taoPhien(x.id);
+  assert.equal(du.xoaNguoiDung(x.id), true);
+  assert.equal(du.xoaNguoiDung(x.id), false, 'xóa lần hai không còn gì để xóa');
+  assert.equal(du.layNguoiDungTheoPhien(phienX), null, 'phiên của người đã xóa không còn hiệu lực');
+  assert.equal(du.layLaSo(x.id, laSoX), null);
+  const conLai = layCsdl().prepare('SELECT COUNT(*) AS n FROM hoi_dap WHERE la_so_id = ?').get(laSoX) as { n: number };
+  assert.equal(conLai.n, 0, 'hỏi đáp của người đã xóa bị xóa theo');
+  assert.ok(du.layLaSo(y.id, laSoY), 'dữ liệu người khác còn nguyên');
+
   console.log('✓ Lớp dữ liệu tài khoản: người dùng, phiên, lá số, hỏi đáp, giới hạn và cách ly dữ liệu đều đúng');
 }
 
