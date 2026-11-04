@@ -12,3 +12,4 @@ Dự án: Tử Vi Đẩu Số bản Việt hóa. Tài liệu lập từ hiện t
 | 16_CO_SO_DU_LIEU.md | Lược đồ SQLite |
 | 17_DAC_TA_API.md | Điểm cuối API |
 | 22_BAO_MAT.md | Bảo mật và dữ liệu cá nhân |
+| 26_TRIEN_KHAI.md | Kế hoạch triển khai (đề xuất) |
