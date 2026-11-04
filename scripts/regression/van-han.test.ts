@@ -7,7 +7,7 @@ import { astro } from 'iztro';
 import { Solar } from 'lunar-javascript';
 import { generateChart } from '../../lib/ziwei/algorithm';
 import { canCuaNgay, tinhVanHan, lietKeThangCuaNamAm } from '../../lib/ziwei/van-han';
-import { duongSangAm } from '../../lib/lich/am-lich-viet';
+import { duongSangAm, ngayTuSoJulius, soNgayJulius } from '../../lib/lich/am-lich-viet';
 import { STEMS } from '../../lib/ziwei/constants';
 
 // 1. Thiên can ngày: 1/1/2000 là ngày Mậu Ngọ
@@ -62,5 +62,11 @@ assert.equal(thangCua2025.length, 13);
 assert.ok(thangCua2025.some((t) => t.thang === 6 && t.nhuan));
 const gieng2026 = lietKeThangCuaNamAm(2026)[0];
 assert.deepEqual(gieng2026.mungMot, { ngay: 17, thang: 2, nam: 2026 });
+
+// 7. Bộ chọn nhanh: mùng 1 tháng 9 năm 2026 là 10/10/2026, tháng có 30 ngày, ngày 26 rơi vào 4/11/2026
+const thang9 = lietKeThangCuaNamAm(2026).find((t) => t.thang === 9 && !t.nhuan)!;
+assert.deepEqual(thang9.mungMot, { ngay: 10, thang: 10, nam: 2026 });
+assert.equal(thang9.soNgay, 30);
+assert.deepEqual(ngayTuSoJulius(soNgayJulius(10, 10, 2026) + 25), [4, 11, 2026]);
 
 console.log(`✓ Vận hạn: ${soMau} ngày khớp iztro, ngày lệch lịch theo lịch Việt, tứ hóa và tên cung đủ`);

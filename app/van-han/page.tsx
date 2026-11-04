@@ -3,7 +3,8 @@ import { useEffect, useMemo, useState } from 'react';
 import BirthForm, { type BirthFormState } from '@/components/BirthForm';
 import { generateChart } from '@/lib/ziwei/algorithm';
 import { formToBirthInfo } from '@/lib/ziwei/share';
-import { tinhVanHan, type TangVan, type TangVanKetQua, type TuHoaVan } from '@/lib/ziwei/van-han';
+import { tinhVanHan, lietKeThangCuaNamAm, type TangVan, type TangVanKetQua, type TuHoaVan, type VanHanKetQua } from '@/lib/ziwei/van-han';
+import { soNgayJulius, ngayTuSoJulius } from '@/lib/lich/am-lich-viet';
 import { tenCung, tenSao, tenTuHoa, tenThienCan, tenDiaChi, tenNamAmLich } from '@/lib/ziwei/thuat-ngu';
 import { docLuongVanBan } from '@/lib/ziwei/sse';
 import type { BirthInfo, ZiweiChart } from '@/lib/ziwei/types';
@@ -51,6 +52,73 @@ function TheTang({ ten, t }: { ten: string; t: TangVanKetQua }) {
           ))}
         </ul>
       </details>
+    </section>
+  );
+}
+
+const nutNho = (dangChon: boolean) => ({
+  ...kieuChon, padding: '6px 10px', fontSize: 14, cursor: 'pointer',
+  borderColor: dangChon ? 'var(--ac)' : 'var(--bdr-heavy)', color: dangChon ? 'var(--ac)' : 'var(--tx-1)', fontWeight: dangChon ? 600 : 400,
+}) as const;
+
+/** Chọn nhanh: tầng Năm có nút sang năm trước/sau; tầng Tháng có dải tháng âm lịch của năm; tầng Ngày thêm lưới ngày của tháng đang xem. */
+function BoChonNhanh({ vh, tang, chon }: { vh: VanHanKetQua; tang: TangVan; chon: (ngay: number, thang: number, nam: number) => void }) {
+  const cacThang = useMemo(() => lietKeThangCuaNamAm(vh.am.nam), [vh.am.nam]);
+  const thangHienTai = cacThang.find((t) => t.thang === vh.am.thang && t.nhuan === vh.am.nhuan);
+  const cacNgay = useMemo(() => {
+    if (!thangHienTai) return [];
+    const goc = soNgayJulius(thangHienTai.mungMot.ngay, thangHienTai.mungMot.thang, thangHienTai.mungMot.nam);
+    return Array.from({ length: thangHienTai.soNgay }, (_, i) => {
+      const [d, m, nam] = ngayTuSoJulius(goc + i);
+      return { amNgay: i + 1, d, m, nam };
+    });
+  }, [thangHienTai]);
+
+  const sangNam = (delta: number) => {
+    // Giữ nguyên ngày âm lịch nếu năm kia có, không thì về mùng một của tháng đó
+    const namMoi = vh.am.nam + delta;
+    const thangKia = lietKeThangCuaNamAm(namMoi).find((t) => t.thang === vh.am.thang && t.nhuan === vh.am.nhuan) ?? lietKeThangCuaNamAm(namMoi)[0];
+    if (!thangKia) return;
+    const goc = soNgayJulius(thangKia.mungMot.ngay, thangKia.mungMot.thang, thangKia.mungMot.nam);
+    const [d, m, nam] = ngayTuSoJulius(goc + Math.min(vh.am.ngay, thangKia.soNgay) - 1);
+    chon(d, m, nam);
+  };
+
+  return (
+    <section style={{ ...khung, display: 'grid', gap: 12 }} aria-label="Chọn nhanh">
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
+        <button type="button" onClick={() => sangNam(-1)} style={nutNho(false)} aria-label="Năm âm lịch trước">‹ Năm trước</button>
+        <strong>Năm {tenNamAmLich(vh.am.nam)}</strong>
+        <button type="button" onClick={() => sangNam(1)} style={nutNho(false)} aria-label="Năm âm lịch sau">Năm sau ›</button>
+      </div>
+      {tang !== 'nam' && (
+        <div role="group" aria-label="Tháng âm lịch" style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+          {cacThang.map((t) => (
+            <button
+              key={`${t.thang}-${t.nhuan}`}
+              type="button"
+              aria-pressed={t === thangHienTai}
+              onClick={() => chon(t.mungMot.ngay, t.mungMot.thang, t.mungMot.nam)}
+              style={nutNho(t === thangHienTai)}
+            >
+              Tháng {t.thang}{t.nhuan ? ' nhuận' : ''}
+            </button>
+          ))}
+        </div>
+      )}
+      {tang === 'ngay' && (
+        <div role="group" aria-label="Ngày âm lịch" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(64px, 1fr))', gap: 6 }}>
+          {cacNgay.map((o) => {
+            const dangChon = o.amNgay === vh.am.ngay;
+            return (
+              <button key={o.amNgay} type="button" aria-pressed={dangChon} onClick={() => chon(o.d, o.m, o.nam)} style={{ ...nutNho(dangChon), display: 'grid', padding: '4px 6px', textAlign: 'center' }}>
+                <span style={{ fontSize: 16 }}>{o.amNgay}</span>
+                <span style={{ fontSize: 11, color: 'var(--tx-3)' }}>{hai(o.d)}/{hai(o.m)}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
     </section>
   );
 }
@@ -179,6 +247,7 @@ export default function TrangVanHan() {
             <p role="alert" style={{ color: 'var(--hoa-ky)' }}>Ngày không hợp lệ hoặc ngoài phạm vi 1901–2099.</p>
           ) : (
             <>
+              <BoChonNhanh vh={vh} tang={tang} chon={(d, m, nam) => { setNgay(`${nam}-${hai(m)}-${hai(d)}`); setVanBan(''); }} />
               <p style={{ ...khung, margin: 0, lineHeight: 1.7 }}>
                 Ngày {vh.duong.ngay}/{vh.duong.thang}/{vh.duong.nam} dương lịch là ngày <strong>{vh.am.ngay} tháng {vh.am.nhuan ? 'nhuận ' : ''}{vh.am.thang} năm {tenNamAmLich(vh.am.nam)}</strong> âm lịch. Tuổi mụ: <strong>{vh.tuoiMu}</strong>.
                 {vh.daiHan && <> Đại hạn {vh.daiHan.tuoiTu}–{vh.daiHan.tuoiDen} tuổi ở cung <strong>{tenCung(vh.daiHan.tenCungGoc, { kemChuHan: false })}</strong>.</>}
