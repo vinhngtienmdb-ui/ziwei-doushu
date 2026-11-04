@@ -72,7 +72,7 @@ export default function LibraryHomePage() {
               className="hover:shadow-lg"
             >
               <div style={{ fontSize: '11px', color: 'var(--tx-3)', letterSpacing: '0.05em', marginBottom: '6px' }}>
-                {tenTrieuDai(book.dynasty)} · {book.author.split(' ')[0]}
+                {tenTrieuDai(book.dynasty)} · {book.author}
               </div>
               <div style={{ fontSize: '20px', fontWeight: 600, color: 'var(--tx-0)', marginBottom: '10px', letterSpacing: '0.04em' }}>
                 {tenSach(book.title)}
