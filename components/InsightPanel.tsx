@@ -20,6 +20,8 @@ interface SelectedSiHua {
 
 interface InsightPanelProps {
   chart: ZiweiChart;
+  /** Mã lá số đã lưu của người dùng. Có mã thì lịch sử hỏi đáp được tải và lưu theo lá số này. */
+  laSoId?: string | null;
   selectedPalace?: Palace | null;
   selectedSiHua?: SelectedSiHua | null;
 }
@@ -186,7 +188,7 @@ function AiContent({ text, streaming }: { text: string; streaming?: boolean }) {
   );
 }
 
-export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: InsightPanelProps) {
+export default function InsightPanel({ chart, laSoId, selectedPalace, selectedSiHua }: InsightPanelProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -200,6 +202,44 @@ export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: I
 
   // Keep refs in sync
   useEffect(() => { messagesRef.current = messages; }, [messages]);
+
+  // Lá số đã lưu: tải lịch sử hỏi đáp. Chưa có lịch sử thì mới tự luận giải "Mệnh cách" như lá số chưa lưu.
+  const laSoIdRef = useRef<string | null>(laSoId ?? null);
+  useEffect(() => {
+    laSoIdRef.current = laSoId ?? null;
+    if (!laSoId) return;
+    let huy = false;
+    const batDauTuDong = () => {
+      if (autoLoaded.current) return;
+      autoLoaded.current = true;
+      sendMessage(TOPIC_PROMPTS.overview, true);
+    };
+    fetch(`/api/la-so/${laSoId}/hoi-dap`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { tinNhan?: { vaiTro: 'user' | 'assistant'; noiDung: string; an: boolean }[] } | null) => {
+        if (huy) return;
+        const daLuu = d?.tinNhan ?? [];
+        if (daLuu.length > 0 && messagesRef.current.length === 0) {
+          autoLoaded.current = true;
+          setMessages(daLuu.map((t) => ({ role: t.vaiTro, content: t.noiDung, hidden: t.an })));
+        } else if (daLuu.length === 0 && messagesRef.current.length > 0) {
+          // Vừa lưu lá số khi cuộc trò chuyện đã có: ghi nốt phần hiện có vào lịch sử
+          const hienCo = messagesRef.current.filter((m) => m.content.trim()).slice(-10)
+            .map((m) => ({ vaiTro: m.role, noiDung: m.content, an: !!m.hidden }));
+          if (hienCo.length > 0) {
+            fetch(`/api/la-so/${laSoId}/hoi-dap`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ tinNhan: hienCo }),
+            }).catch(() => { /* ghi lịch sử thất bại không ảnh hưởng việc xem kết quả */ });
+          }
+        } else if (daLuu.length === 0) {
+          batDauTuDong();
+        }
+      })
+      .catch(() => { if (!huy) batDauTuDong(); });
+    return () => { huy = true; };
+  }, [laSoId]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { loadingRef.current = loading; }, [loading]);
 
   // Auto-scroll
@@ -210,8 +250,9 @@ export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: I
   }, [messages]);
 
   // Auto-generate 命格总览 on mount
+  // Lá số đã lưu thì chờ tải lịch sử rồi mới quyết định (xem hiệu ứng tải lịch sử ở trên)
   useEffect(() => {
-    if (autoLoaded.current) return;
+    if (autoLoaded.current || laSoId) return;
     autoLoaded.current = true;
     sendMessage(TOPIC_PROMPTS.overview, true);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -281,7 +322,7 @@ Lời khuyên cụ thể có thể thực hiện dựa trên tứ hóa này.`;
     sendMessage(prompt, true);
   }, [selectedSiHua]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const streamResponse = async (apiMessages: { role: 'user' | 'assistant'; content: string }[]) => {
+  const streamResponse = async (apiMessages: { role: 'user' | 'assistant'; content: string }[], tinNhanNguoiDung: Message) => {
     try {
       const res = await fetch('/api/interpret', {
         method: 'POST',
@@ -304,6 +345,20 @@ Lời khuyên cụ thể có thể thực hiện dựa trên tứ hóa này.`;
           return updated;
         });
       });
+
+      // Lá số đã lưu: ghi lượt hỏi đáp vừa xong vào lịch sử
+      if (laSoIdRef.current && assistantText.trim()) {
+        fetch(`/api/la-so/${laSoIdRef.current}/hoi-dap`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tinNhan: [
+              { vaiTro: 'user', noiDung: tinNhanNguoiDung.content, an: !!tinNhanNguoiDung.hidden },
+              { vaiTro: 'assistant', noiDung: assistantText },
+            ],
+          }),
+        }).catch(() => { /* lưu lịch sử thất bại không ảnh hưởng việc xem kết quả */ });
+      }
     } catch (e) {
       const missing = e instanceof Error && e.message === 'api-missing';
       setMessages(prev => [...prev, { role: 'assistant', content: missing ? "Chưa cấu hình khóa API cho tính năng AI. Hãy đặt ANTHROPIC_API_KEY trong tệp .env.local ở thư mục gốc dự án, rồi khởi động lại máy chủ (npm run dev). Việc lập lá số không cần khóa API." : 'Luận giải thất bại, vui lòng thử lại sau.' }]);
@@ -320,14 +375,14 @@ Lời khuyên cụ thể có thể thực hiện dựa trên tứ hóa này.`;
 
     const userMsg: Message = { role: 'user', content: text, hidden };
     // Capture current messages synchronously via ref (avoids stale closure)
-    const apiMessages = [...messagesRef.current, userMsg].map(m => ({
+    const apiMessages = [...messagesRef.current, userMsg].slice(-6).map(m => ({
       role: m.role,
       content: m.content,
     }));
 
     setMessages(prev => [...prev, userMsg]);
     setInput('');
-    streamResponse(apiMessages);
+    streamResponse(apiMessages, userMsg);
   };
 
   const handleTopicClick = (topicKey: string) => {

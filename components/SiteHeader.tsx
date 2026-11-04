@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTheme } from '@/components/ThemeProvider';
+import TaiKhoanNut from '@/components/TaiKhoanNut';
 
 const LIEN_KET = [
   { href: '/chart', nhan: 'Lập lá số' },
@@ -62,6 +63,8 @@ export default function SiteHeader() {
             );
           })}
         </nav>
+
+        <TaiKhoanNut />
 
         <button
           type="button"
