@@ -3,6 +3,7 @@ import { LOI_DAN_HE_THONG, dungNguCanhLaSo } from '@/lib/ziwei/ngu-canh-ai';
 import { tinhVanHan, type TangVan } from '@/lib/ziwei/van-han';
 import { loiYeuCauVanHan, nguCanhDayDu } from '@/lib/ziwei/ngu-canh-van-han';
 import { phatLuongClaude } from '@/lib/ai/luong-claude';
+import { chanNeuVuotGioiHan } from '@/lib/ai/gioi-han';
 
 function laLaSoHopLe(chart: unknown): chart is ZiweiChart {
   if (!chart || typeof chart !== 'object') return false;
@@ -31,6 +32,9 @@ export async function POST(request: Request) {
     vh = null;
   }
   if (!vh) return Response.json({ error: 'du-lieu-khong-hop-le' }, { status: 400 });
+
+  const biChan = await chanNeuVuotGioiHan(request);
+  if (biChan) return biChan;
 
   const phanHoi = phatLuongClaude(
     `${LOI_DAN_HE_THONG}\n\nLÁ SỐ VÀ VẬN HẠN:\n${nguCanhDayDu(chart, vh, tang as TangVan, dungNguCanhLaSo)}`,

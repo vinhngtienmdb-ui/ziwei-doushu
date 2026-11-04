@@ -1,4 +1,5 @@
 import { phatLuongClaude } from '@/lib/ai/luong-claude';
+import { chanNeuVuotGioiHan } from '@/lib/ai/gioi-han';
 import type { ZiweiChart } from '@/lib/ziwei/types';
 import { LOI_DAN_HE_THONG, dungNguCanhLaSo } from '@/lib/ziwei/ngu-canh-ai';
 
@@ -44,6 +45,9 @@ export async function POST(request: Request) {
   if (!laLaSoHopLe(chart) || !tinNhan) {
     return Response.json({ error: 'du-lieu-khong-hop-le' }, { status: 400 });
   }
+
+  const biChan = await chanNeuVuotGioiHan(request);
+  if (biChan) return biChan;
 
   const phanHoi = phatLuongClaude(`${LOI_DAN_HE_THONG}
 

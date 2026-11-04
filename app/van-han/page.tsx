@@ -173,7 +173,11 @@ export default function TrangVanHan() {
         body: JSON.stringify({ chart, ngay: n, thang: t, nam: y, tang }),
       });
       if (!res.ok || !res.body) {
-        setVanBan(res.status === 503 ? 'Chưa cấu hình khóa API cho dịch vụ AI.' : 'Không luận giải được, vui lòng thử lại.');
+        setVanBan(
+          res.status === 503 ? 'Chưa cấu hình khóa API cho dịch vụ AI.'
+            : res.status === 429 ? 'Bạn đã hỏi quá nhiều trong một giờ, vui lòng quay lại sau.'
+            : 'Không luận giải được, vui lòng thử lại.',
+        );
         return;
       }
       let tich = '';
