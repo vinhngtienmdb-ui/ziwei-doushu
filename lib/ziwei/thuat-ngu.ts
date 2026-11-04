@@ -92,17 +92,23 @@ export function tenSao(chuHan: string, tuyChon?: TuyChonThuatNgu): string {
   return tenViet ? ghepChuHan(tenViet, chuHan, tuyChon) : chuHan;
 }
 
-/** Tên cung, chấp nhận cả dạng có và không có chữ 宫. */
+/** Tên cung gọn (không kèm chữ "cung"), chấp nhận cả dạng có và không có chữ 宫. Ví dụ 夫妻宫 → Phu Thê. */
 export function tenCung(chuHan: string, tuyChon?: TuyChonThuatNgu): string {
   const goc = chuHan.endsWith('宫') ? chuHan.slice(0, -1) : chuHan;
   const tenViet = TEN_CUNG[goc];
-  return tenViet ? ghepChuHan(`${tenViet} cung`, chuHan, tuyChon) : chuHan;
+  return tenViet ? ghepChuHan(tenViet, chuHan, tuyChon) : chuHan;
 }
 
 /** Tứ Hóa: 禄 → Hóa Lộc (禄). */
 export function tenTuHoa(chuHan: string, tuyChon?: TuyChonThuatNgu): string {
   const tenViet = TU_HOA[chuHan.replace(/^化/, '')];
   return tenViet ? ghepChuHan(tenViet, chuHan, tuyChon) : chuHan;
+}
+
+/** Nhãn Tứ Hóa ngắn để đặt trong ô nhỏ: 禄 → Lộc. */
+export function tenTuHoaNgan(chuHan: string): string {
+  const tenViet = TU_HOA[chuHan.replace(/^化/, "")];
+  return tenViet ? tenViet.replace("Hóa ", "") : chuHan;
 }
 
 /** Độ sáng của sao: 庙 → Miếu (庙). */
