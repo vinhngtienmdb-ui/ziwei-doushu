@@ -287,7 +287,7 @@ Lời khuyên cụ thể có thể thực hiện dựa trên tứ hóa này.`;
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chart, messages: apiMessages }),
       });
-      if (res.status === 404) throw new Error('api-missing');
+      if (res.status === 404 || res.status === 503) throw new Error('api-missing');
       if (!res.ok) throw new Error('Yêu cầu thất bại');
       if (!res.body) throw new Error('Không có luồng phản hồi');
 
@@ -318,7 +318,7 @@ Lời khuyên cụ thể có thể thực hiện dựa trên tứ hóa này.`;
       }
     } catch (e) {
       const missing = e instanceof Error && e.message === 'api-missing';
-      setMessages(prev => [...prev, { role: 'assistant', content: missing ? 'Bản mã nguồn mở không có giao diện luận giải AI (/api/interpret), bạn cần tự cài đặt mới dùng được, xem phần «Bắt đầu nhanh» trong README. Việc lập lá số không cần API key.' : 'Luận giải thất bại, vui lòng thử lại sau.' }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: missing ? "Chưa cấu hình khóa API cho tính năng AI. Hãy đặt ANTHROPIC_API_KEY trong tệp .env.local ở thư mục gốc dự án, rồi khởi động lại máy chủ (npm run dev). Việc lập lá số không cần khóa API." : 'Luận giải thất bại, vui lòng thử lại sau.' }]);
     } finally {
       setLoading(false);
       loadingRef.current = false;

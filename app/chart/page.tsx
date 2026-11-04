@@ -3,6 +3,7 @@ import { useState } from 'react';
 import BirthForm from '@/components/BirthForm';
 import ChartBoard from '@/components/ChartBoard';
 import ChartSummary from '@/components/ChartSummary';
+import InsightPanel from '@/components/InsightPanel';
 import { generateChart } from '@/lib/ziwei/algorithm';
 import type { BirthInfo, ZiweiChart, Palace } from '@/lib/ziwei/types';
 
@@ -18,7 +19,7 @@ import type { BirthInfo, ZiweiChart, Palace } from '@/lib/ziwei/types';
  */
 export default function ChartPage() {
   const [chart, setChart] = useState<ZiweiChart | null>(null);
-  const [, setSelectedPalace] = useState<Palace | null>(null);
+  const [selectedPalace, setSelectedPalace] = useState<Palace | null>(null);
 
   // ── 未起盘：展示出生信息表单 ──
   if (!chart) {
@@ -56,7 +57,10 @@ export default function ChartPage() {
         }}
       >
         <ChartBoard chart={chart} onPalaceSelect={setSelectedPalace} />
-        <ChartSummary chart={chart} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20, minWidth: 0 }}>
+          <ChartSummary chart={chart} />
+          <InsightPanel chart={chart} selectedPalace={selectedPalace} />
+        </div>
       </div>
     </main>
   );

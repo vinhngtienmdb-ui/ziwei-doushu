@@ -47,7 +47,7 @@ export default function ChatPanel({ chart }: ChatPanelProps) {
         body: JSON.stringify({ chart, messages: [...messages, userMsg] }),
       });
 
-      if (res.status === 404) throw new Error('api-missing');
+      if (res.status === 404 || res.status === 503) throw new Error('api-missing');
       if (!res.ok) throw new Error('Yêu cầu thất bại');
       if (!res.body) throw new Error('Không có luồng phản hồi');
 
@@ -83,7 +83,7 @@ export default function ChatPanel({ chart }: ChatPanelProps) {
       const missing = e instanceof Error && e.message === 'api-missing';
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: missing ? 'Bản mã nguồn mở không có giao diện luận giải AI (/api/interpret), bạn cần tự cài đặt mới dùng được, xem phần «Bắt đầu nhanh» trong README. Việc lập lá số không cần API key.' : 'Luận giải thất bại, vui lòng kiểm tra cấu hình API hoặc thử lại sau.',
+        content: missing ? "Chưa cấu hình khóa API cho tính năng AI. Hãy đặt ANTHROPIC_API_KEY trong tệp .env.local ở thư mục gốc dự án, rồi khởi động lại máy chủ (npm run dev). Việc lập lá số không cần khóa API." : 'Luận giải thất bại, vui lòng kiểm tra cấu hình API hoặc thử lại sau.',
       }]);
     } finally {
       setLoading(false);
