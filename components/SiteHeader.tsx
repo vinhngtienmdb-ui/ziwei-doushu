@@ -8,6 +8,7 @@ const LIEN_KET = [
   { href: '/chart', nhan: 'Lập lá số' },
   { href: '/heming', nhan: 'Hợp bàn' },
   { href: '/lich', nhan: 'Ngày tốt xấu' },
+  { href: '/van-han', nhan: 'Vận hạn' },
   { href: '/library', nhan: 'Cổ thư' },
   { href: '/knowledge', nhan: 'Tri thức' },
 ];
