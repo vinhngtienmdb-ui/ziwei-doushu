@@ -129,3 +129,24 @@ export function themHoiDap(nguoiDungId: string, laSoId: string, tinNhan: TinNhan
   for (const t of tinNhan) chen.run(laSoId, t.vaiTro, t.noiDung.slice(0, DO_DAI_HOI_DAP_TOI_DA), t.an ? 1 : 0, bayGio);
   return true;
 }
+
+// ─── Tử vi chung theo năm (dùng chung cho mọi người, sinh một lần rồi lưu đệm) ──────────
+
+/** Số lần sinh mới tối đa trong 24 giờ trên toàn hệ thống, để chi phí gọi AI không vượt tầm kiểm soát. */
+export const SO_LAN_SINH_TOI_DA_MOI_NGAY = 24;
+
+export function layTuViNam(nam: number): Record<number, string> {
+  const dong = layCsdl().prepare('SELECT chi, noi_dung AS noiDung FROM tu_vi_nam WHERE nam = ?').all(nam) as { chi: number; noiDung: string }[];
+  return Object.fromEntries(dong.map((d) => [d.chi, d.noiDung]));
+}
+
+/** Lưu nội dung; nếu con giáp của năm đó đã có thì giữ bản cũ. Trả về true nếu bản này được lưu. */
+export function luuTuViNam(nam: number, chi: number, noiDung: string, bayGio = Date.now()): boolean {
+  const kq = layCsdl().prepare('INSERT OR IGNORE INTO tu_vi_nam (nam, chi, noi_dung, tao_luc) VALUES (?, ?, ?, ?)').run(nam, chi, noiDung.slice(0, 20000), bayGio);
+  return Number(kq.changes) > 0;
+}
+
+export function demLanSinhGanDay(bayGio = Date.now()): number {
+  const d = layCsdl().prepare('SELECT COUNT(*) AS n FROM tu_vi_nam WHERE tao_luc > ?').get(bayGio - 24 * 60 * 60 * 1000) as { n: number };
+  return d.n;
+}

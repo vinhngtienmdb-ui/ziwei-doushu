@@ -60,3 +60,25 @@ export function phatLuongClaude(heThong: string, tinNhan: TinNhan[], soTokenToiD
     headers: { 'Content-Type': 'text/event-stream; charset=utf-8', 'Cache-Control': 'no-cache, no-transform' },
   });
 }
+
+/** Gọi Claude một lần, không phát luồng. Trả về null nếu chưa cấu hình khóa, lỗi, hoặc câu trả lời bị cắt giữa chừng. */
+export async function sinhVanBanClaude(heThong: string, loiYeuCau: string, soTokenToiDa = 2000): Promise<string | null> {
+  const khoaApi = process.env.ANTHROPIC_API_KEY;
+  if (!khoaApi) return null;
+  const moHinhRieng = process.env.ANTHROPIC_MODEL;
+  try {
+    const khach = new Anthropic({ apiKey: khoaApi });
+    const kq = await khach.messages.create({
+      model: moHinhRieng || MO_HINH_MAC_DINH,
+      max_tokens: soTokenToiDa,
+      system: heThong,
+      messages: [{ role: 'user', content: loiYeuCau }],
+      ...(moHinhRieng ? {} : { thinking: { type: 'between_tools' } }),
+    } as Anthropic.MessageCreateParamsNonStreaming);
+    if (kq.stop_reason === 'max_tokens') return null;
+    const chu = kq.content.map((k) => (k.type === 'text' ? k.text : '')).join('').trim();
+    return chu.length >= 200 ? chu : null;
+  } catch {
+    return null;
+  }
+}
