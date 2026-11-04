@@ -13,6 +13,8 @@
  */
 
 import Link from 'next/link';
+import { tenSao, tenCung } from '@/lib/ziwei/thuat-ngu';
+import { tenSach, tenTrieuDai, tenChuDe } from '@/lib/seo/nhan-hien-thi';
 import { notFound } from 'next/navigation';
 import type { TopicKey } from '@/lib/ziwei/db-analysis';
 import {
@@ -43,9 +45,9 @@ export async function generateMetadata({ params }: { params: Promise<{ star: str
   const data = getKnowledge(star, topic as TopicKey);
   if (!data.exists) return {};
 
-  const title = `${star}入${data.palaceName}宫 · ${data.topicLabel} · 倪海厦体系详解`;
+  const title = `${tenSao(star, { kemChuHan: false })} nhập ${tenCung(data.palaceName, { kemChuHan: false })} cung · ${tenChuDe(data.topicLabel)} · Giải chi tiết theo hệ thống Nghê Hải Hạ`;
   const description = data.parsed.dingdiao
-    || `${star}入${data.palaceName}宫的紫微斗数解读 — 基于倪海厦《天纪》体系与古籍《紫微斗数全集》《骨髓赋》。`;
+    || `Luận giải Tử Vi Đẩu Số về ${tenSao(star, { kemChuHan: false })} nhập ${tenCung(data.palaceName, { kemChuHan: false })} cung, dựa trên hệ thống «Thiên Kỷ» của Nghê Hải Hạ và các cổ thư Tử Vi Đẩu Số Toàn Tập, Cốt Tuỷ Phú.`;
 
   return {
     title,
@@ -60,9 +62,9 @@ export async function generateMetadata({ params }: { params: Promise<{ star: str
       canonical: `${SITE_URL}/knowledge/${slug}/${topic}`,
     },
     keywords: [
-      '紫微斗数', '倪海厦', star, data.palaceName, data.topicLabel,
-      `${star}${data.palaceName}`, `${star}入${data.palaceName}`,
-      `紫微斗数 ${star}`, '倪海厦紫微斗数', '紫微斗数全集',
+      'Tử Vi Đẩu Số', 'Nghê Hải Hạ', tenSao(star, { kemChuHan: false }), tenCung(data.palaceName, { kemChuHan: false }), tenChuDe(data.topicLabel), '紫微斗数', '倪海厦', star, data.palaceName,
+      `${star}${data.palaceName}`, `${star}入${data.palaceName}`, `${tenSao(star, { kemChuHan: false })} nhập ${tenCung(data.palaceName, { kemChuHan: false })}`,
+      `Tử Vi Đẩu Số ${tenSao(star, { kemChuHan: false })}`, 'Tử Vi Đẩu Số Toàn Tập', '紫微斗数 ' + star, '倪海厦紫微斗数', '紫微斗数全集',
     ],
   };
 }
@@ -83,19 +85,19 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
-    headline: `${star}入${data.palaceName}宫 · ${data.topicLabel}`,
+    headline: `${tenSao(star, { kemChuHan: false })} nhập ${tenCung(data.palaceName, { kemChuHan: false })} cung · ${tenChuDe(data.topicLabel)}`,
     description: data.parsed.dingdiao,
-    author: { '@type': 'Organization', name: '紫微研究 · 倪海厦正宗' },
+    author: { '@type': 'Organization', name: 'Tử Vi Nghiên Cứu · Chính tông Nghê Hải Hạ' },
     publisher: {
       '@type': 'Organization',
-      name: '紫微研究',
+      name: 'Tử Vi Nghiên Cứu',
       url: SITE_URL,
     },
     datePublished: '2026-04-28',
     dateModified: '2026-04-28',
     mainEntityOfPage: `${SITE_URL}/knowledge/${slug}/${topic}`,
-    articleSection: '紫微斗数 · 倪海厦体系',
-    keywords: [`紫微斗数`, star, data.palaceName, data.topicLabel].join(', '),
+    articleSection: 'Tử Vi Đẩu Số · Hệ thống Nghê Hải Hạ',
+    keywords: [`Tử Vi Đẩu Số`, tenSao(star, { kemChuHan: false }), tenCung(data.palaceName, { kemChuHan: false }), tenChuDe(data.topicLabel)].join(', '),
   };
 
   return (
@@ -105,36 +107,36 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
       {/* 顶栏 */}
       <div className="px-6 py-4 flex items-center justify-between"
         style={{ borderBottom: '1px solid rgba(184,146,42,0.15)', background: 'var(--bg-page)' }}>
-        <Link href="/" style={{ fontSize: '12px', color: 'var(--ac)', letterSpacing: '0.3em', textDecoration: 'none' }}>
-          ← 首页
+        <Link href="/" style={{ fontSize: '12px', color: 'var(--ac)', letterSpacing: '0.1em', textDecoration: 'none' }}>
+          ← Trang chủ
         </Link>
-        <div style={{ fontSize: '12px', color: 'var(--tx-3)', letterSpacing: '0.2em' }}>
-          倪师方法论 · 知识库
+        <div style={{ fontSize: '12px', color: 'var(--tx-3)', letterSpacing: '0.05em' }}>
+          Phương pháp luận của Nghê sư · Kho tri thức
         </div>
-        <Link href="/chart" style={{ fontSize: '12px', color: 'var(--ac)', letterSpacing: '0.2em', textDecoration: 'none' }}>
-          起盘 →
+        <Link href="/chart" style={{ fontSize: '12px', color: 'var(--ac)', letterSpacing: '0.05em', textDecoration: 'none' }}>
+          Lập lá số →
         </Link>
       </div>
 
       <article className="max-w-3xl mx-auto px-6 py-12">
         {/* 面包屑 */}
-        <nav style={{ fontSize: '11px', color: 'var(--tx-3)', letterSpacing: '0.1em', marginBottom: '16px' }}>
-          <Link href="/" style={{ color: 'var(--tx-3)', textDecoration: 'none' }}>首页</Link>
+        <nav style={{ fontSize: '11px', color: 'var(--tx-3)', letterSpacing: '0.04em', marginBottom: '16px' }}>
+          <Link href="/" style={{ color: 'var(--tx-3)', textDecoration: 'none' }}>Trang chủ</Link>
           <span style={{ margin: '0 8px' }}>/</span>
-          <Link href="/knowledge" style={{ color: 'var(--tx-3)', textDecoration: 'none' }}>知识库</Link>
+          <Link href="/knowledge" style={{ color: 'var(--tx-3)', textDecoration: 'none' }}>Kho tri thức</Link>
           <span style={{ margin: '0 8px' }}>/</span>
-          <span>{star}</span>
+          <span>{tenSao(star, { kemChuHan: false })}</span>
           <span style={{ margin: '0 8px' }}>·</span>
-          <span style={{ color: 'var(--ac)' }}>{data.palaceName}宫</span>
+          <span style={{ color: 'var(--ac)' }}>{tenCung(data.palaceName, { kemChuHan: false })} cung</span>
         </nav>
 
         {/* 标题区 */}
         <header style={{ marginBottom: '36px' }}>
-          <div style={{ fontSize: '11px', color: 'var(--tx-3)', letterSpacing: '0.25em', marginBottom: '8px' }}>
-            {data.topicLabel} · 倪海厦体系详解
+          <div style={{ fontSize: '11px', color: 'var(--tx-3)', letterSpacing: '0.05em', marginBottom: '8px' }}>
+            {tenChuDe(data.topicLabel)} · Giải chi tiết theo hệ thống Nghê Hải Hạ
           </div>
-          <h1 style={{ fontSize: 'clamp(28px, 5vw, 44px)', fontWeight: 700, color: 'var(--tx-0)', letterSpacing: '0.1em', lineHeight: 1.2 }}>
-            {star}入{data.palaceName}宫
+          <h1 style={{ fontSize: 'clamp(28px, 5vw, 44px)', fontWeight: 700, color: 'var(--tx-0)', letterSpacing: '0.04em', lineHeight: 1.2 }}>
+            {tenSao(star)} nhập {tenCung(data.palaceName, { kemChuHan: false })} cung
           </h1>
           {STAR_BRIEF_SEO[star] && (
             <p style={{ fontSize: '13px', color: 'var(--tx-2)', marginTop: '14px', lineHeight: 1.8 }}>
@@ -145,7 +147,7 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
 
         {/* 内容 4 段 */}
         {data.parsed.dingdiao && (
-          <Section title="一句话定调" gradient>
+          <Section title="Câu định điều" gradient>
             <p style={{ fontSize: '17px', color: 'var(--tx-0)', lineHeight: 1.9, fontWeight: 500, letterSpacing: '0.04em' }}>
               {data.parsed.dingdiao}
             </p>
@@ -153,7 +155,7 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
         )}
 
         {data.parsed.lundian && (
-          <Section title="核心论断">
+          <Section title="Luận đoán cốt lõi">
             <div style={{ fontSize: '15px', color: 'var(--tx-0)', lineHeight: 2, letterSpacing: '0.02em', whiteSpace: 'pre-wrap' }}>
               {data.parsed.lundian}
             </div>
@@ -161,7 +163,7 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
         )}
 
         {data.parsed.yiju && (
-          <Section title="命盘依据">
+          <Section title="Căn cứ trên lá số">
             <div style={{ fontSize: '14px', color: 'var(--tx-0)', lineHeight: 2, letterSpacing: '0.02em', whiteSpace: 'pre-wrap' }}>
               {data.parsed.yiju}
             </div>
@@ -169,7 +171,7 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
         )}
 
         {data.parsed.chuchu && (
-          <Section title="经典出处" minimal>
+          <Section title="Xuất xứ kinh điển" minimal>
             <div style={{ fontSize: '13px', color: 'var(--tx-2)', lineHeight: 2, letterSpacing: '0.02em', whiteSpace: 'pre-wrap' }}>
               {data.parsed.chuchu}
             </div>
@@ -185,11 +187,11 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
           border: '1px solid rgba(184,146,42,0.3)',
           textAlign: 'center',
         }}>
-          <div style={{ fontSize: '14px', color: 'var(--tx-0)', fontWeight: 600, letterSpacing: '0.1em', marginBottom: '6px' }}>
-            想看你自己命盘的{data.topicLabel}？
+          <div style={{ fontSize: '14px', color: 'var(--tx-0)', fontWeight: 600, letterSpacing: '0.04em', marginBottom: '6px' }}>
+            Muốn xem {tenChuDe(data.topicLabel)} trên lá số của chính bạn?
           </div>
           <div style={{ fontSize: '12px', color: 'var(--tx-2)', marginBottom: '16px' }}>
-            输入生辰起盘 · 倪师正宗解读 · AI 答疑伴学
+            Nhập ngày giờ sinh để lập lá số · luận giải chính tông của Nghê sư · AI giải đáp và đồng hành học tập
           </div>
           <Link href="/chart" style={{
             display: 'inline-block',
@@ -199,16 +201,16 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
             borderRadius: '999px',
             fontSize: '14px',
             fontWeight: 600,
-            letterSpacing: '0.15em',
+            letterSpacing: '0.05em',
             textDecoration: 'none',
             boxShadow: '0 4px 12px rgba(184,146,42,0.3)',
           }}>
-            立即起盘 →
+            Lập lá số ngay →
           </Link>
         </div>
 
         {/* 内链：同主星其他 topic */}
-        <Section title={`${star}星的其他宫位解读`} minimal>
+        <Section title={`Luận giải sao ${tenSao(star, { kemChuHan: false })} ở các cung khác`} minimal>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
             {otherTopicsForStar.map(t => {
               const d = getKnowledge(star, t);
@@ -226,7 +228,7 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
                     textDecoration: 'none',
                   }}
                 >
-                  {star}入{d.palaceName}
+                  {tenSao(star, { kemChuHan: false })} nhập {tenCung(d.palaceName, { kemChuHan: false })}
                 </Link>
               );
             })}
@@ -234,7 +236,7 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
         </Section>
 
         {/* 内链：同 topic 其他主星 */}
-        <Section title={`其他主星入${data.palaceName}宫的解读`} minimal>
+        <Section title={`Luận giải các chính tinh khác nhập ${tenCung(data.palaceName, { kemChuHan: false })} cung`} minimal>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
             {otherStarsForTopic.slice(0, 13).map(s => (
               <Link
@@ -250,7 +252,7 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
                   textDecoration: 'none',
                 }}
               >
-                {s}入{data.palaceName}
+                {tenSao(s, { kemChuHan: false })} nhập {tenCung(data.palaceName, { kemChuHan: false })}
               </Link>
             ))}
           </div>
@@ -265,19 +267,19 @@ export default async function KnowledgePage({ params }: { params: Promise<{ star
           borderRadius: '10px',
           textAlign: 'center',
         }}>
-          <div style={{ fontSize: '11px', color: 'var(--ac-dim)', letterSpacing: '0.15em', marginBottom: '6px' }}>
-            想读原典？
+          <div style={{ fontSize: '11px', color: 'var(--ac-dim)', letterSpacing: '0.05em', marginBottom: '6px' }}>
+            Muốn đọc nguyên điển?
           </div>
-          <Link href="/library" style={{ fontSize: '13px', color: 'var(--ac)', fontWeight: 500, letterSpacing: '0.1em', textDecoration: 'none' }}>
-            📜 查阅古籍原典库 — 紫微斗数全集 / 全书 / 骨髓赋 →
+          <Link href="/library" style={{ fontSize: '13px', color: 'var(--ac)', fontWeight: 500, letterSpacing: '0.04em', textDecoration: 'none' }}>
+            📜 Tra cứu kho cổ thư nguyên bản: Toàn Tập / Toàn Thư / Cốt Tuỷ Phú →
           </Link>
         </div>
       </article>
 
       {/* 页脚 */}
-      <footer style={{ borderTop: '1px solid rgba(184,146,42,0.15)', padding: '20px 24px', textAlign: 'center', fontSize: '11px', color: 'var(--tx-3)', letterSpacing: '0.1em' }}>
-        <div style={{ marginBottom: '6px' }}>紫微研究 · 基于倪海厦正宗体系 · 仅供学习参考</div>
-        <div style={{ opacity: 0.85 }}>本平台不构成任何医疗、投资、法律或重大决策建议</div>
+      <footer style={{ borderTop: '1px solid rgba(184,146,42,0.15)', padding: '20px 24px', textAlign: 'center', fontSize: '11px', color: 'var(--tx-3)', letterSpacing: '0.04em' }}>
+        <div style={{ marginBottom: '6px' }}>Tử Vi Nghiên Cứu · Dựa trên hệ thống chính tông của Nghê Hải Hạ · Chỉ để học tập và tham khảo</div>
+        <div style={{ opacity: 0.85 }}>Nền tảng không đưa ra lời khuyên về y tế, đầu tư, pháp luật hay các quyết định lớn</div>
       </footer>
     </div>
   );
@@ -293,7 +295,7 @@ function Section({ title, children, gradient, minimal }: { title: string; childr
         fontSize: '13px',
         color: 'var(--ac)',
         fontWeight: 600,
-        letterSpacing: '0.2em',
+        letterSpacing: '0.05em',
         marginBottom: '12px',
       }}>
         <span style={{ width: '4px', height: '14px', background: 'var(--ac)', borderRadius: '2px' }} />
