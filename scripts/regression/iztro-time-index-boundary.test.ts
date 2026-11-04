@@ -41,7 +41,7 @@ function formAt(clockHour: string): BirthFormState {
     unknownTime: false,
     province: '',
     city: '',
-    longitude: 120,
+    longitude: 105,
     gender: 'male',
   };
 }

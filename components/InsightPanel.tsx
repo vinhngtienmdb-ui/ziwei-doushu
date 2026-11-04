@@ -1,8 +1,10 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { docLuongVanBan } from '@/lib/ziwei/sse';
 import type { ZiweiChart, Palace } from '@/lib/ziwei/types';
 import type { TimeView } from './TimeNav';
+import { tenSao, tenCung, tenTuHoa } from '@/lib/ziwei/thuat-ngu';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -18,130 +20,134 @@ interface SelectedSiHua {
 
 interface InsightPanelProps {
   chart: ZiweiChart;
+  /** Mã lá số đã lưu của người dùng. Có mã thì lịch sử hỏi đáp được tải và lưu theo lá số này. */
+  laSoId?: string | null;
   selectedPalace?: Palace | null;
   selectedSiHua?: SelectedSiHua | null;
 }
 
 const TOPICS = [
-  { key: 'overview',     label: '命格' },
-  { key: 'love',        label: '感情' },
-  { key: 'career',      label: '事业' },
-  { key: 'wealth',      label: '财运' },
-  { key: 'health',      label: '健康' },
-  { key: 'personality', label: '性格' },
+  { key: 'overview',     label: 'Mệnh cách' },
+  { key: 'love',        label: 'Tình cảm' },
+  { key: 'career',      label: 'Sự nghiệp' },
+  { key: 'wealth',      label: 'Tài vận' },
+  { key: 'health',      label: 'Sức khỏe' },
+  { key: 'personality', label: 'Tính cách' },
 ] as const;
 
+// Các lời nhắc bên dưới gửi tới máy chủ luận giải. Giữ nguyên dấu 【 】 vì AiContent dùng chúng để nhận diện tiêu đề từng phần.
 const TOPIC_PROMPTS: Record<string, string> = {
-  overview: `请生成命格总览，按以下结构输出：
+  overview: `Hãy tạo bản tổng quan mệnh cách, trả lời bằng tiếng Việt, theo cấu trúc sau:
 
-**【命格定性】**
-用一句话概括这个命盘的核心格局与命主气质。
+**【Định tính mệnh cách】**
+Dùng một câu tóm tắt cách cục cốt lõi của lá số và khí chất của chủ mệnh.
 
-**【主星解读】**
-命宫主星的核心特质，引用倪海厦原话或观点。
+**【Luận giải chính tinh】**
+Đặc chất cốt lõi của chính tinh tại Mệnh cung, trích dẫn lời hoặc quan điểm của Nghê Hải Hạ.
 
-**【三方四正】**
-财、官、迁三宫的联动分析及整体格局。
+**【Tam phương tứ chính】**
+Phân tích sự liên động của ba cung Tài, Quan, Thiên Di và cách cục tổng thể.
 
-**【当前大限】**
-当下大限运势方向与最值得关注的事项。
+**【Đại hạn hiện tại】**
+Hướng vận của đại hạn hiện tại và những việc đáng chú ý nhất.
 
-**【优势与注意】**
-命盘天赋优势，以及需要注意的风险或功课。`,
+**【Ưu điểm và điều cần lưu ý】**
+Ưu thế thiên phú của lá số, cùng những rủi ro hoặc bài học cần chú ý.`,
 
-  love: `请深度分析感情婚姻运，按以下结构输出：
+  love: `Hãy phân tích sâu vận tình cảm và hôn nhân, trả lời bằng tiếng Việt, theo cấu trúc sau:
 
-**【感情格局】**
-一句话定性感情命格。
+**【Cách cục tình cảm】**
+Định tính mệnh cách tình cảm bằng một câu.
 
-**【夫妻宫分析】**
-夫妻宫主星、四化，以及倪海厦体系的具体解读。
+**【Phân tích Phu Thê cung】**
+Chính tinh, tứ hóa của Phu Thê cung, cùng cách luận giải cụ thể theo hệ thống Nghê Hải Hạ.
 
-**【三方联动】**
-相关宫位对感情的影响。
+**【Liên động tam phương】**
+Ảnh hưởng của các cung liên quan đến tình cảm.
 
-**【当前大限感情运】**
-当下10年感情走向与关键节点。
+**【Vận tình cảm đại hạn hiện tại】**
+Xu hướng tình cảm trong 10 năm hiện tại và các mốc then chốt.
 
-**【实际建议】**
-具体可行的感情建议。`,
+**【Lời khuyên thực tế】**
+Những lời khuyên tình cảm cụ thể, khả thi.`,
 
-  career: `请深度分析事业运，按以下结构输出：
+  career: `Hãy phân tích sâu vận sự nghiệp, trả lời bằng tiếng Việt, theo cấu trúc sau:
 
-**【事业格局】**
-一句话定性事业命格，宜任职或宜创业。
+**【Cách cục sự nghiệp】**
+Định tính mệnh cách sự nghiệp bằng một câu, hợp làm công ăn lương hay khởi nghiệp.
 
-**【官禄宫分析】**
-官禄宫主星、四化，以及倪师对这种配置的判断。
+**【Phân tích Quan Lộc cung】**
+Chính tinh, tứ hóa của Quan Lộc cung, cùng nhận định của Nghê sư về cách bố trí này.
 
-**【财帛宫联动】**
-财运与事业的关系，财路来源分析。
+**【Liên động Tài Bạch cung】**
+Mối quan hệ giữa tài vận và sự nghiệp, phân tích nguồn tài.
 
-**【当前大限事业运】**
-当下10年事业走向。
+**【Vận sự nghiệp đại hạn hiện tại】**
+Xu hướng sự nghiệp trong 10 năm hiện tại.
 
-**【实际建议】**
-适合的方向、行业与策略。`,
+**【Lời khuyên thực tế】**
+Hướng đi, ngành nghề và chiến lược phù hợp.`,
 
-  wealth: `请深度分析财运，按以下结构输出：
+  wealth: `Hãy phân tích sâu tài vận, trả lời bằng tiếng Việt, theo cấu trúc sau:
 
-**【财运格局】**
-一句话定性财运模式，是主动财还是被动财。
+**【Cách cục tài vận】**
+Định tính mô thức tài vận bằng một câu, là tài chủ động hay tài bị động.
 
-**【财帛宫分析】**
-财帛宫主星、四化，财富来源与流动模式。
+**【Phân tích Tài Bạch cung】**
+Chính tinh, tứ hóa của Tài Bạch cung, nguồn tài và mô thức dòng tiền.
 
-**【田宅宫（财库）】**
-积蓄能力与不动产运势分析。
+**【Điền Trạch cung (kho tài)】**
+Phân tích khả năng tích lũy và vận bất động sản.
 
-**【当前大限财运】**
-当下财运走向与注意事项。
+**【Tài vận đại hạn hiện tại】**
+Xu hướng tài vận hiện tại và những điều cần chú ý.
 
-**【理财建议】**
-具体的财务建议。`,
+**【Lời khuyên quản lý tiền】**
+Những lời khuyên tài chính cụ thể.`,
 
-  health: `请分析健康运势，按以下结构输出：
+  health: `Hãy phân tích vận sức khỏe, trả lời bằng tiếng Việt, theo cấu trúc sau:
 
-**【疾厄宫主星】**
-疾厄宫星曜与健康含义。
+**【Chính tinh Tật Ách cung】**
+Các sao ở Tật Ách cung và ý nghĩa đối với sức khỏe.
 
-**【主要风险】**
-结合倪海厦子午流注理论，分析主要健康隐患与需关注的部位。
+**【Rủi ro chính】**
+Kết hợp lý thuyết Tý Ngọ lưu chú của Nghê Hải Hạ, phân tích các mối nguy sức khỏe chính và bộ phận cần chú ý.
 
-**【大限健康走势】**
-当下健康趋势与关键时间段。
+**【Xu hướng sức khỏe theo đại hạn】**
+Xu hướng sức khỏe hiện tại và các khoảng thời gian then chốt.
 
-**【预防建议】**
-具体注意事项与养生方向。`,
+**【Lời khuyên phòng ngừa】**
+Những điều cần lưu ý cụ thể và hướng dưỡng sinh.`,
 
-  personality: `请深度解析性格特质，按以下结构输出：
+  personality: `Hãy phân tích sâu đặc chất tính cách, trả lời bằng tiếng Việt, theo cấu trúc sau:
 
-**【命宫主星性格】**
-命宫主星的核心性格特质，引用倪师原话。
+**【Tính cách chính tinh Mệnh cung】**
+Đặc chất tính cách cốt lõi của chính tinh Mệnh cung, trích dẫn lời Nghê sư.
 
-**【三方性格综合】**
-财、官、迁三宫对性格的影响，全貌描绘。
+**【Tổng hợp tính cách tam phương】**
+Ảnh hưởng của ba cung Tài, Quan, Thiên Di đến tính cách, mô tả toàn cảnh.
 
-**【人际关系模式】**
-与他人互动方式、待人处世风格。
+**【Mô thức quan hệ giao tiếp】**
+Cách tương tác với người khác, phong cách đối nhân xử thế.
 
-**【优势与人生课题】**
-天赋优势，以及需要面对的人生功课。`,
+**【Ưu điểm và bài học cuộc đời】**
+Ưu thế thiên phú, cùng những bài học cuộc đời cần đối diện.`,
 };
 
+// Khóa là tên cung chữ Hán do engine trả về; chỉ phần mô tả được dịch.
 const PALACE_ROLES: Record<string, string> = {
-  '命宫':   '自我、性格、先天格局',
-  '兄弟宫': '兄弟关系、合伙人',
-  '夫妻宫': '感情关系、婚姻状态',
-  '子女宫': '子女缘分、下属关系',
-  '财帛宫': '财运来源、收入方式',
-  '疾厄宫': '身体健康、意外',
-  '迁移宫': '外出机遇、人际格局',
-  '交友宫': '朋友圈、贵人、小人',
-  '官禄宫': '事业成就、社会地位',
-  '田宅宫': '不动产、家庭环境',
-  '福德宫': '精神享受、内心福分',
-  '父母宫': '父母关系、文书契约',
+  '命宫':   'bản thân, tính cách, cách cục bẩm sinh',
+  '兄弟宫': 'quan hệ anh em, đối tác hợp tác',
+  '夫妻宫': 'quan hệ tình cảm, tình trạng hôn nhân',
+  '子女宫': 'duyên con cái, quan hệ cấp dưới',
+  '财帛宫': 'nguồn tài vận, cách thu nhập',
+  '疾厄宫': 'sức khỏe thân thể, tai nạn bất ngờ',
+  '迁移宫': 'cơ hội ra ngoài, cách cục giao tiếp',
+  '交友宫': 'vòng bạn bè, quý nhân, tiểu nhân',
+  '官禄宫': 'thành tựu sự nghiệp, địa vị xã hội',
+  '田宅宫': 'bất động sản, môi trường gia đình',
+  '福德宫': 'hưởng thụ tinh thần, phúc phần nội tâm',
+  '父母宫': 'quan hệ cha mẹ, văn thư hợp đồng',
 };
 
 /** Render AI markdown: **【Title】** → gold header, **bold** → strong */
@@ -154,7 +160,7 @@ function AiContent({ text, streaming }: { text: string; streaming?: boolean }) {
         if (sectionMatch) {
           return (
             <div key={i} className="pt-3 pb-0.5 first:pt-0">
-              <span className="text-[11px] font-semibold tracking-wide" style={{ color: 'var(--t-gold)' }}>
+              <span className="text-[16px] font-semibold tracking-wide" style={{ color: 'var(--t-gold)' }}>
                 【{sectionMatch[1]}】
               </span>
             </div>
@@ -163,7 +169,7 @@ function AiContent({ text, streaming }: { text: string; streaming?: boolean }) {
         if (line.trim() === '') return <div key={i} className="h-1" />;
         const parts = line.split(/\*\*(.+?)\*\*/);
         return (
-          <div key={i} className="text-[11px] leading-relaxed" style={{ color: 'var(--t-text2)' }}>
+          <div key={i} className="text-[16px] leading-relaxed" style={{ color: 'var(--t-text2)' }}>
             {parts.map((part, j) =>
               j % 2 === 0
                 ? part
@@ -182,7 +188,7 @@ function AiContent({ text, streaming }: { text: string; streaming?: boolean }) {
   );
 }
 
-export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: InsightPanelProps) {
+export default function InsightPanel({ chart, laSoId, selectedPalace, selectedSiHua }: InsightPanelProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -196,6 +202,44 @@ export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: I
 
   // Keep refs in sync
   useEffect(() => { messagesRef.current = messages; }, [messages]);
+
+  // Lá số đã lưu: tải lịch sử hỏi đáp. Chưa có lịch sử thì mới tự luận giải "Mệnh cách" như lá số chưa lưu.
+  const laSoIdRef = useRef<string | null>(laSoId ?? null);
+  useEffect(() => {
+    laSoIdRef.current = laSoId ?? null;
+    if (!laSoId) return;
+    let huy = false;
+    const batDauTuDong = () => {
+      if (autoLoaded.current) return;
+      autoLoaded.current = true;
+      sendMessage(TOPIC_PROMPTS.overview, true);
+    };
+    fetch(`/api/la-so/${laSoId}/hoi-dap`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { tinNhan?: { vaiTro: 'user' | 'assistant'; noiDung: string; an: boolean }[] } | null) => {
+        if (huy) return;
+        const daLuu = d?.tinNhan ?? [];
+        if (daLuu.length > 0 && messagesRef.current.length === 0) {
+          autoLoaded.current = true;
+          setMessages(daLuu.map((t) => ({ role: t.vaiTro, content: t.noiDung, hidden: t.an })));
+        } else if (daLuu.length === 0 && messagesRef.current.length > 0) {
+          // Vừa lưu lá số khi cuộc trò chuyện đã có: ghi nốt phần hiện có vào lịch sử
+          const hienCo = messagesRef.current.filter((m) => m.content.trim()).slice(-10)
+            .map((m) => ({ vaiTro: m.role, noiDung: m.content, an: !!m.hidden }));
+          if (hienCo.length > 0) {
+            fetch(`/api/la-so/${laSoId}/hoi-dap`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ tinNhan: hienCo }),
+            }).catch(() => { /* ghi lịch sử thất bại không ảnh hưởng việc xem kết quả */ });
+          }
+        } else if (daLuu.length === 0) {
+          batDauTuDong();
+        }
+      })
+      .catch(() => { if (!huy) batDauTuDong(); });
+    return () => { huy = true; };
+  }, [laSoId]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { loadingRef.current = loading; }, [loading]);
 
   // Auto-scroll
@@ -206,8 +250,9 @@ export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: I
   }, [messages]);
 
   // Auto-generate 命格总览 on mount
+  // Lá số đã lưu thì chờ tải lịch sử rồi mới quyết định (xem hiệu ứng tải lịch sử ở trên)
   useEffect(() => {
-    if (autoLoaded.current) return;
+    if (autoLoaded.current || laSoId) return;
     autoLoaded.current = true;
     sendMessage(TOPIC_PROMPTS.overview, true);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -219,23 +264,24 @@ export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: I
 
     const majorStars = selectedPalace.stars.filter(s => s.type === 'major');
     const starDesc = majorStars.length > 0
-      ? majorStars.map(s => `${s.name}${s.siHua ? '化' + s.siHua : ''}`).join('、')
-      : '空宫（借对宫）';
+      ? majorStars.map(s => `${tenSao(s.name)}${s.siHua ? ' ' + tenTuHoa(s.siHua) : ''}`).join(', ')
+      : 'cung trống (mượn đối cung)';
     const role = PALACE_ROLES[selectedPalace.name] ?? '';
 
-    const prompt = `请重点分析【${selectedPalace.name}】（主管：${role}），该宫主星为${starDesc}，按以下结构输出：
+    const tenCungHienThi = tenCung(selectedPalace.name);
+    const prompt = `Hãy tập trung phân tích【${tenCungHienThi}】(chủ quản: ${role}), chính tinh của cung này là ${starDesc}. Trả lời bằng tiếng Việt, theo cấu trúc sau:
 
-**【宫位定性】**
-${selectedPalace.name}在命盘中的意义，以及这种星曜配置的整体判断。
+**【Định tính cung vị】**
+Ý nghĩa của ${tenCungHienThi} trong lá số, cùng nhận định tổng thể về cách bố trí sao này.
 
-**【主星解读】**
-主星在此宫的倪海厦体系解读，引用具体观点。
+**【Luận giải chính tinh】**
+Cách luận giải chính tinh tại cung này theo hệ thống Nghê Hải Hạ, trích dẫn quan điểm cụ thể.
 
-**【三方四正联动】**
-三方四正宫位对此宫的影响。
+**【Liên động tam phương tứ chính】**
+Ảnh hưởng của các cung tam phương tứ chính đối với cung này.
 
-**【实际建议】**
-基于此宫的具体建议。`;
+**【Lời khuyên thực tế】**
+Lời khuyên cụ thể dựa trên cung này.`;
 
     sendMessage(prompt, true);
   }, [selectedPalace]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -251,68 +297,71 @@ ${selectedPalace.name}在命盘中的意义，以及这种星曜配置的整体�
     const palaceOfStar = chart.palaces.find(p =>
       p.stars.some(s => s.name === selectedSiHua.starName)
     );
-    const palaceName = palaceOfStar?.name ?? '未知宫位';
-    const viewLabel = selectedSiHua.view === 'daxian' ? '大限' : '流年';
+    const palaceName = palaceOfStar ? tenCung(palaceOfStar.name) : 'cung vị chưa xác định';
+    const viewLabel = selectedSiHua.view === 'daxian' ? 'Đại hạn' : 'Lưu niên';
 
-    const prompt = `请分析【${viewLabel}${selectedSiHua.starName}化${selectedSiHua.siHua}】的飞化影响，按以下结构输出：
+    const tenSaoHienThi = tenSao(selectedSiHua.starName);
+    const tenHoa = tenTuHoa(selectedSiHua.siHua);
+    const prompt = `Hãy phân tích ảnh hưởng phi hóa của【${viewLabel} ${tenSaoHienThi} ${tenHoa}】. Trả lời bằng tiếng Việt, theo cấu trúc sau:
 
-**【化${selectedSiHua.siHua}基本含义】**
-化${selectedSiHua.siHua}在倪海厦体系中的核心含义，以及${selectedSiHua.starName}化${selectedSiHua.siHua}的特殊含义。
+**【Ý nghĩa cơ bản của ${tenHoa}】**
+Ý nghĩa cốt lõi của ${tenHoa} trong hệ thống Nghê Hải Hạ, và ý nghĩa đặc biệt của ${tenSaoHienThi} ${tenHoa}.
 
-**【落宫影响】**
-${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，该宫主管的领域受到何种影响，倪师如何解读。
+**【Ảnh hưởng khi rơi vào cung】**
+${tenSaoHienThi} ${tenHoa} rơi vào【${palaceName}】, lĩnh vực do cung này chủ quản chịu ảnh hưởng thế nào, Nghê sư luận giải ra sao.
 
-**【三方四正飞化路径】**
-化${selectedSiHua.siHua}入${palaceName}后，对其三方四正（对宫、两个三合宫）的联动影响。
+**【Đường phi hóa tam phương tứ chính】**
+Sau khi ${tenHoa} nhập ${palaceName}, ảnh hưởng liên động đến tam phương tứ chính của cung đó (đối cung và hai cung tam hợp).
 
-**【当前运势影响】**
-在${viewLabel}时间维度下，此化${selectedSiHua.siHua}对命主近期运势的具体影响。
+**【Ảnh hưởng đến vận thế hiện tại】**
+Ở chiều thời gian ${viewLabel}, ảnh hưởng cụ thể của ${tenHoa} này đối với vận thế gần đây của chủ mệnh.
 
-**【实际建议】**
-基于此四化的具体可操作建议。`;
+**【Lời khuyên thực tế】**
+Lời khuyên cụ thể có thể thực hiện dựa trên tứ hóa này.`;
 
     sendMessage(prompt, true);
   }, [selectedSiHua]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const streamResponse = async (apiMessages: { role: 'user' | 'assistant'; content: string }[]) => {
+  const streamResponse = async (apiMessages: { role: 'user' | 'assistant'; content: string }[], tinNhanNguoiDung: Message) => {
     try {
       const res = await fetch('/api/interpret', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chart, messages: apiMessages }),
       });
-      if (res.status === 404) throw new Error('api-missing');
-      if (!res.ok) throw new Error('请求失败');
-      if (!res.body) throw new Error('无响应流');
+      if (res.status === 404 || res.status === 503) throw new Error('api-missing');
+      if (!res.ok) throw new Error('Yêu cầu thất bại');
+      if (!res.body) throw new Error('Không có luồng phản hồi');
 
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
       let assistantText = '';
 
       setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        for (const line of chunk.split('\n')) {
-          if (!line.startsWith('data: ')) continue;
-          const data = line.slice(6);
-          if (data === '[DONE]') break;
-          try {
-            const delta = JSON.parse(data).delta?.text ?? '';
-            assistantText += delta;
-            setMessages(prev => {
-              const updated = [...prev];
-              updated[updated.length - 1] = { role: 'assistant', content: assistantText };
-              return updated;
-            });
-          } catch { /* skip */ }
-        }
+      await docLuongVanBan(res.body, (doanMoi) => {
+        assistantText += doanMoi;
+        setMessages(prev => {
+          const updated = [...prev];
+          updated[updated.length - 1] = { role: 'assistant', content: assistantText };
+          return updated;
+        });
+      });
+
+      // Lá số đã lưu: ghi lượt hỏi đáp vừa xong vào lịch sử
+      if (laSoIdRef.current && assistantText.trim()) {
+        fetch(`/api/la-so/${laSoIdRef.current}/hoi-dap`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tinNhan: [
+              { vaiTro: 'user', noiDung: tinNhanNguoiDung.content, an: !!tinNhanNguoiDung.hidden },
+              { vaiTro: 'assistant', noiDung: assistantText },
+            ],
+          }),
+        }).catch(() => { /* lưu lịch sử thất bại không ảnh hưởng việc xem kết quả */ });
       }
     } catch (e) {
       const missing = e instanceof Error && e.message === 'api-missing';
-      setMessages(prev => [...prev, { role: 'assistant', content: missing ? '开源版不含 AI 解读接口（/api/interpret），需要你自己实现后才能用，详见 README「快速开始」。排盘本身不需要任何 API Key。' : '解读失败，请稍后重试。' }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: missing ? "Chưa cấu hình khóa API cho tính năng AI. Hãy đặt ANTHROPIC_API_KEY trong tệp .env.local ở thư mục gốc dự án, rồi khởi động lại máy chủ (npm run dev). Việc lập lá số không cần khóa API." : 'Luận giải thất bại, vui lòng thử lại sau.' }]);
     } finally {
       setLoading(false);
       loadingRef.current = false;
@@ -326,14 +375,14 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
 
     const userMsg: Message = { role: 'user', content: text, hidden };
     // Capture current messages synchronously via ref (avoids stale closure)
-    const apiMessages = [...messagesRef.current, userMsg].map(m => ({
+    const apiMessages = [...messagesRef.current, userMsg].slice(-6).map(m => ({
       role: m.role,
       content: m.content,
     }));
 
     setMessages(prev => [...prev, userMsg]);
     setInput('');
-    streamResponse(apiMessages);
+    streamResponse(apiMessages, userMsg);
   };
 
   const handleTopicClick = (topicKey: string) => {
@@ -359,7 +408,7 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
                 key={t.key}
                 onClick={() => handleTopicClick(t.key)}
                 disabled={loading}
-                className="py-1.5 text-[10px] font-medium rounded-lg transition-all duration-150 disabled:opacity-40"
+                className="py-1.5 text-[14px] font-medium rounded-lg transition-all duration-150 disabled:opacity-40"
                 style={{
                   background: isActive ? 'rgba(212,168,67,0.12)' : 'transparent',
                   border: `1px solid ${isActive ? 'rgba(212,168,67,0.3)' : 'var(--t-border)'}`,
@@ -380,7 +429,7 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <div className="text-4xl mb-3" style={{ color: 'var(--t-gold)', opacity: 0.1 }}>✦</div>
-            <p className="text-[10px] animate-pulse" style={{ color: 'var(--t-faint)' }}>命格解读生成中…</p>
+            <p className="text-[14px] animate-pulse" style={{ color: 'var(--t-faint)' }}>Đang tạo luận giải mệnh cách…</p>
           </div>
         )}
 
@@ -397,7 +446,7 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
                   className="flex justify-end"
                 >
                   <div
-                    className="max-w-[85%] rounded-xl px-3 py-2 text-[11px]"
+                    className="max-w-[85%] rounded-xl px-3 py-2 text-[16px]"
                     style={{
                       background: 'rgba(212,168,67,0.08)',
                       border: '1px solid rgba(212,168,67,0.18)',
@@ -419,11 +468,11 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
                 animate={{ opacity: 1, y: 0 }}
               >
                 <div
-                  className="text-[9px] tracking-widest mb-2 flex items-center gap-1.5"
+                  className="text-[12px] tracking-wide mb-2 flex items-center gap-1.5"
                   style={{ color: 'var(--t-faint)' }}
                 >
                   <span style={{ color: 'var(--t-gold)', opacity: 0.4 }}>✦</span>
-                  命理解读
+                  Luận giải mệnh lý
                 </div>
                 <AiContent text={msg.content} streaming={loading && isLastMsg} />
               </motion.div>
@@ -440,9 +489,9 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSend()}
-            placeholder="继续追问，如：今年适合换工作吗？"
+            placeholder="Hỏi tiếp, ví dụ: Năm nay có hợp đổi việc không?"
             disabled={loading}
-            className="flex-1 rounded-lg px-3 py-2 text-[11px] focus:outline-none transition-colors"
+            className="flex-1 rounded-lg px-3 py-2 text-[16px] focus:outline-none transition-colors"
             style={{
               background: 'var(--t-card)',
               border: '1px solid var(--t-border)',
@@ -452,14 +501,14 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
           <button
             onClick={handleSend}
             disabled={loading || !input.trim()}
-            className="px-3 py-2 rounded-lg text-[11px] font-medium transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+            className="px-3 py-2 rounded-lg text-[16px] font-medium transition-all disabled:opacity-30 disabled:cursor-not-allowed"
             style={{
               background: 'rgba(212,168,67,0.15)',
               border: '1px solid rgba(212,168,67,0.25)',
               color: 'var(--t-gold)',
             }}
           >
-            {loading ? '…' : '追问'}
+            {loading ? '…' : 'Hỏi tiếp'}
           </button>
         </div>
       </div>

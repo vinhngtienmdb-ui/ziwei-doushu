@@ -1,7 +1,7 @@
 'use client';
 import { motion } from 'framer-motion';
+import { tenSao, tenCung, tenTuHoaNgan, tenThienCan, tenDiaChi } from '@/lib/ziwei/thuat-ngu';
 import type { Palace, Star } from '@/lib/ziwei/types';
-import { STEMS, BRANCHES } from '@/lib/ziwei/constants';
 import clsx from 'clsx';
 
 interface PalaceCellProps {
@@ -40,7 +40,7 @@ const SiHuaBadge = ({
   return (
     <span
       className={clsx(
-        'inline-flex items-center text-[8px] px-1 rounded-full border leading-none py-px font-bold ml-1 flex-shrink-0',
+        'inline-flex items-center text-[11px] px-1 rounded-full border leading-none py-px font-bold ml-1 flex-shrink-0',
         SIHUA_STYLES[siHua],
         overlay && 'border-dashed opacity-80',
         onClick && 'cursor-pointer hover:opacity-100',
@@ -48,7 +48,7 @@ const SiHuaBadge = ({
       onClick={onClick}
     >
       {overlay && label && <span className="mr-px opacity-70">{label}</span>}
-      {siHua}
+      {tenTuHoaNgan(siHua)}
     </span>
   );
 };
@@ -58,7 +58,7 @@ export default function PalaceCell({
   overlayStarSiHua, overlayLabel, onSiHuaClick,
 }: PalaceCellProps) {
   const { branch, stem, name, stars, daXianAge, isCurrentDaXian, isMingGong, isShenGong } = palace;
-  const ganzhi = `${STEMS[stem]}${BRANCHES[branch]}`;
+  const ganzhi = `${tenThienCan(stem)} ${tenDiaChi(branch)}`;
 
   const majorStars = stars.filter(s => s.type === 'major');
   const luckyStars = stars.filter(s => s.type === 'lucky');
@@ -72,7 +72,7 @@ export default function PalaceCell({
       onClick={onClick}
       className="relative flex flex-col p-1.5 cursor-pointer transition-all duration-200 h-full"
       style={{
-        minHeight: '90px',
+        minHeight: '150px',
         background: isCurrentDaXian
           ? 'rgba(147,51,234,0.08)'
           : isSelected
@@ -94,10 +94,10 @@ export default function PalaceCell({
       {/* 大限年龄 */}
       {daXianAge && (
         <div className={clsx(
-          'absolute top-1 right-1 text-[9px] font-mono tabular-nums',
+          'absolute top-1 right-1 text-[12px] font-mono tabular-nums',
           isCurrentDaXian ? 'text-purple-400' : ''
         )}
-          style={!isCurrentDaXian ? { color: 'var(--t-faint)', opacity: 0.75 } : undefined}
+          style={!isCurrentDaXian ? { color: 'var(--t-faint)' } : undefined}
         >
           {daXianAge[0]}–{daXianAge[1]}
         </div>
@@ -105,28 +105,28 @@ export default function PalaceCell({
 
       {/* 宫名行 */}
       <div className="flex items-center gap-1 mb-0.5 pr-8">
-        <span className={clsx('text-[10px] font-medium tracking-wide',
+        <span className={clsx('text-[13px] font-medium tracking-wide',
           isMingGong ? 'text-amber-500' : isShenGong ? 'text-sky-500' : ''
         )}
           style={!isMingGong && !isShenGong ? { color: 'var(--t-faint)' } : undefined}
         >
-          {name}
+          {tenCung(name, { kemChuHan: false })}
         </span>
         {isMingGong && (
-          <span className="text-[7px] text-amber-500/80 border border-amber-500/30 px-0.5 rounded leading-tight">命</span>
+          <span className="text-[10px] text-amber-500/80 border border-amber-500/30 px-1 rounded leading-tight">Mệnh</span>
         )}
         {isShenGong && (
-          <span className="text-[7px] text-sky-500/80 border border-sky-500/30 px-0.5 rounded leading-tight">身</span>
+          <span className="text-[10px] text-sky-500/80 border border-sky-500/30 px-1 rounded leading-tight">Thân</span>
         )}
       </div>
 
       {/* 干支 */}
-      <div className="text-[9px] font-mono mb-1" style={{ color: 'var(--t-faint)', opacity: 0.75 }}>{ganzhi}</div>
+      <div className="text-[12px] font-mono mb-1" style={{ color: 'var(--t-faint)' }}>{ganzhi}</div>
 
       {/* 主星 */}
       <div className="flex flex-col gap-0.5 flex-1">
         {majorStars.length === 0 && (
-          <span className="text-[10px] italic" style={{ color: 'var(--t-faint)', opacity: 0.6 }}>空宫</span>
+          <span className="text-[13px] italic" style={{ color: 'var(--t-faint)' }}>Cung trống</span>
         )}
         {majorStars.map((star) => {
           const overlaySiHua = overlayStarSiHua?.[star.name];
@@ -137,10 +137,10 @@ export default function PalaceCell({
               onClick={e => { e.stopPropagation(); onStarClick?.(star); }}
             >
               <span className={clsx(
-                'text-[13px] leading-tight font-bold tracking-tight cursor-pointer hover:brightness-125 transition-all',
+                'text-[18px] leading-tight font-bold tracking-tight cursor-pointer hover:brightness-125 transition-all',
                 star.brightness === 'bright' ? 'text-amber-300' : star.brightness === 'dim' ? 'text-amber-700/80' : 'text-amber-500',
               )}>
-                {star.name}
+                {tenSao(star.name, { kemChuHan: false })}
               </span>
               {star.siHua && <SiHuaBadge siHua={star.siHua} />}
               {overlaySiHua && (
@@ -165,8 +165,8 @@ export default function PalaceCell({
           {luckyStars.map(s => {
             const overlaySiHua = overlayStarSiHua?.[s.name];
             return (
-              <span key={s.name} className="inline-flex items-center text-[9px] text-sky-500/70 leading-tight">
-                {s.name}
+              <span key={s.name} className="inline-flex items-center text-[12px] text-sky-500/70 leading-tight">
+                {tenSao(s.name, { kemChuHan: false })}
                 {s.siHua && <SiHuaBadge siHua={s.siHua} />}
                 {overlaySiHua && (
                   <SiHuaBadge
@@ -189,8 +189,8 @@ export default function PalaceCell({
       {shaStars.length > 0 && (
         <div className="flex flex-wrap gap-x-1">
           {shaStars.map(s => (
-            <span key={s.name} className="text-[9px] text-red-500/60 leading-tight">
-              {s.name}{s.siHua && <SiHuaBadge siHua={s.siHua} />}
+            <span key={s.name} className="text-[12px] text-red-500/60 leading-tight">
+              {tenSao(s.name, { kemChuHan: false })}{s.siHua && <SiHuaBadge siHua={s.siHua} />}
             </span>
           ))}
         </div>

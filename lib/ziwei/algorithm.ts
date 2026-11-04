@@ -4,7 +4,9 @@
  */
 
 import { astro } from 'iztro';
-import { Solar, LunarMonth } from 'lunar-javascript';
+import { Solar } from 'lunar-javascript';
+import { duongSangAm, soNgayTrongThangAm } from '../lich/am-lich-viet';
+import { lunarToSolar } from './lunar-solar';
 import type { BirthInfo, LunarInfo, Star, Palace, DaXian, DaXianSiHua, ZiweiChart } from './types';
 import { BRANCHES, STEMS } from './constants';
 import { schoolStarBrightness, type BrightnessSchool } from './school-data';
@@ -149,15 +151,16 @@ export function resolveEffectiveLunarDate(
       `leapMonth policy must be one of 'split' | 'next-month' | 'prev-month' | 'origin-month'; received ${String(policy)}`,
     );
   }
-  const lunar = Solar.fromYmd(year, month, day).getLunar();
-  const rawLunarMonth = Number(lunar.getMonth());
-  const rawLunarDay = Number(lunar.getDay());
+  // Âm lịch tính theo lịch Việt Nam (múi giờ GMT+7), không phải lịch Trung Quốc: khoảng 4% ngày sai khác một ngày.
+  const amViet = duongSangAm(day, month, year);
+  const rawLunarMonth = amViet.nhuan ? -amViet.thang : amViet.thang;
+  const rawLunarDay = amViet.ngay;
   const isRawLeapMonth = rawLunarMonth < 0;
   const absoluteMonth = Math.abs(rawLunarMonth);
 
   if (!isRawLeapMonth) {
     return {
-      lunarYear: Number(lunar.getYear()),
+      lunarYear: amViet.nam,
       lunarMonth: absoluteMonth,
       lunarDay: rawLunarDay,
       isLeapMonth: false,
@@ -166,7 +169,7 @@ export function resolveEffectiveLunarDate(
     };
   }
 
-  let lunarYear = Number(lunar.getYear());
+  let lunarYear = amViet.nam;
   let lunarMonth = absoluteMonth;
   let isLeapMonth = false;
 
@@ -186,11 +189,9 @@ export function resolveEffectiveLunarDate(
   }
 
   let lunarDay = rawLunarDay;
-  try {
-    const monthKey = isLeapMonth ? -lunarMonth : lunarMonth;
-    const dayCount = LunarMonth.fromYm(lunarYear, monthKey)?.getDayCount?.();
-    if (typeof dayCount === 'number' && dayCount > 0 && lunarDay > dayCount) lunarDay = dayCount;
-  } catch { /* 查不到月信息则保留原日，维持下游既有容错 */ }
+  // Tháng được chuyển sang có thể ngắn hơn ngày sinh (tháng 29 ngày): lấy ngày cuối tháng
+  const dayCount = soNgayTrongThangAm(lunarMonth, lunarYear, isLeapMonth);
+  if (dayCount > 0 && lunarDay > dayCount) lunarDay = dayCount;
 
   return {
     lunarYear,
@@ -218,8 +219,10 @@ export function getLunarInfo(
   const lu = lunar as any;
   // 紫微斗数排盘年（正月初一换年，与上方 astro.config:yearDivide='normal' 同口径）
   // 注意：节气四柱(下方)用 getEightChar() 精确到立春/节的时刻，八字四柱永远立春换年，跟紫微的"农历年"是两套
-  const yearStem = STEMS.indexOf(lu.getYearGan());
-  const yearBranch = BRANCHES.indexOf(lu.getYearZhi());
+  // Năm âm lịch theo lịch Việt Nam (đổi năm ở mùng một Tết Việt Nam), năm 4 sau Công nguyên là Giáp Tý
+  const namAmViet = duongSangAm(day, month, year).nam;
+  const yearStem = (((namAmViet - 4) % 10) + 10) % 10;
+  const yearBranch = (((namAmViet - 4) % 12) + 12) % 12;
   // ★ 节气四柱（年柱/月柱/日柱/时柱）+ 非节气四柱（农历口径月柱）
   let fourPillars: [string, string, string, string] | undefined;
   let fourPillarsLunar: [string, string, string, string] | undefined;
@@ -450,6 +453,27 @@ function applySchoolFuxun(palaces: Palace[]): void {
   pushNatalStar(palaces, fu, '副旬');
 }
 
+interface NgayDuong { year: number; month: number; day: number }
+
+/**
+ * Ngày dương lịch (theo lịch Trung Quốc) mang đúng ngày âm lịch đã cho, để đưa vào iztro.
+ * Thứ tự thử: đúng như yêu cầu; tháng nhuận không có bên lịch Trung Quốc thì tính như tháng thường;
+ * ngày 30 không có (tháng 30 ngày ở Việt Nam nhưng 29 ngày ở Trung Quốc) thì lùi một ngày.
+ * Ngoài phạm vi 1900–2050 hoặc không tìm được thì dùng chính ngày sinh dương lịch.
+ */
+export function timNgayDuongThayThe(am: EffectiveLunarDate, goc: NgayDuong): NgayDuong {
+  const thu = (ngayAm: number, nhuan: boolean) => {
+    const s = lunarToSolar(am.lunarYear, am.lunarMonth, ngayAm, nhuan);
+    return s ? { year: s.year, month: s.month, day: s.day } : null;
+  };
+  return (
+    thu(am.lunarDay, am.isLeapMonth) ??
+    (am.isLeapMonth ? thu(am.lunarDay, false) : null) ??
+    (am.lunarDay === 30 ? thu(29, am.isLeapMonth) ?? (am.isLeapMonth ? thu(29, false) : null) : null) ??
+    goc
+  );
+}
+
 export function generateChart(
   birthInfo: BirthInfo,
   opts?: { leapMonth?: LunarMonthPolicy },
@@ -480,24 +504,19 @@ export function generateChart(
   const leapMode = opts?.leapMonth ?? DEFAULT_LEAP_MONTH;
   const effectiveLunar = resolveEffectiveLunarDate(year, month, day, leapMode);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let astrolabe: any;
+  // Thư viện an sao (iztro) chỉ nhận ngày dương lịch và tự đổi sang âm lịch Trung Quốc. Để lá số theo âm lịch Việt Nam,
+  // tìm ngày dương lịch (theo lịch Trung Quốc) có đúng ngày âm lịch mà lịch Việt Nam đã cho rồi đưa ngày đó vào thư viện.
+  // Ngày dương lịch thay thế chỉ dùng để an sao; ngày sinh thật vẫn giữ nguyên ở birthInfo và các phần khác.
+  const duongThayThe = timNgayDuongThayThe(effectiveLunar, { year, month, day });
 
-  if (leapMode !== 'split' && effectiveLunar.rawLunarMonth < 0) {
-      // 闰月生人 → 按用户选项切换月份归属
-      const lunarDateStr = `${effectiveLunar.lunarYear}-${effectiveLunar.lunarMonth}-${effectiveLunar.lunarDay}`;
-      astrolabe = astro.byLunar(
-        lunarDateStr,
-        hour,
-        iztroGender,
-        effectiveLunar.isLeapMonth,
-        false,
-        'zh-CN',
-      );
-  } else {
-    // 非闰月或 split 模式：直接 bySolar，保持 iztro 的既有行为
-    astrolabe = astro.bySolar(`${year}-${month}-${day}`, hour, iztroGender, true, 'zh-CN');
-  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const astrolabe: any = astro.bySolar(
+    `${duongThayThe.year}-${duongThayThe.month}-${duongThayThe.day}`,
+    hour,
+    iztroGender,
+    !effectiveLunar.isLeapMonth, // tháng nhuận tính như tháng thường (chính sách origin-month) thì không dồn nửa tháng sau
+    'zh-CN',
+  );
 
   // 让序列化后的 chart.birthInfo 继续携带同一闰月策略，供客户端运限 helper 重建本命盘。
   const chartBirthInfo = {

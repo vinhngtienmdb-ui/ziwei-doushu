@@ -8,16 +8,10 @@ const ThemeContext = createContext<{
   toggle: () => void;
 }>({ theme: 'dark', toggle: () => {} });
 
-function getInitialTheme(): Theme {
-  if (typeof document !== 'undefined') {
-    const attr = document.documentElement.getAttribute('data-theme');
-    if (attr === 'light' || attr === 'dark') return attr;
-  }
-  return 'dark';
-}
-
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(getInitialTheme);
+  // Giá trị đầu tiên luôn là 'dark' để khớp với HTML do máy chủ dựng, tránh lỗi hydration.
+  // Giao diện đã lưu được áp dụng ngay sau khi mount; màu qua biến CSS đúng từ lần vẽ đầu nhờ đoạn script trong layout.
+  const [theme, setTheme] = useState<Theme>('dark');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

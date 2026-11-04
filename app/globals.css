@@ -5,7 +5,7 @@
 /* ─── 2.0 设计系统 Token ─────────────────────────────────── */
 :root {
   /* 字体 */
-  --font: -apple-system, 'PingFang SC', 'Helvetica Neue', 'Segoe UI', sans-serif;
+  --font: var(--font-viet), var(--font-han), -apple-system, 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif;
   --font-mono: 'SF Mono', 'Menlo', 'Noto Sans Mono', 'Consolas', monospace;
 
   /* 背景层级 */
@@ -18,13 +18,13 @@
   --tx-0: #0D0D0B;
   --tx-1: #1A1A18;
   --tx-2: #4A4A45;
-  --tx-3: #8A8A82;
+  --tx-3: #666660;
   --tx-inv: #F0EDE8;
   --tx-inv2: rgba(240,237,232,0.65);
 
   /* 唯一强调色：墨金 */
-  --ac:     #B8922A;
-  --ac-dim: #7A5F1A;
+  --ac:     #7A5A0E;
+  --ac-dim: #5E4509;
   --ac-bg:  rgba(184,146,42,0.07);
   --ac-bdr: rgba(184,146,42,0.22);
 
@@ -49,6 +49,22 @@
   --bg-card: #FFFFFF;
   --bg-page: #fbf6e8;
 
+  /* Bàn lá số và thẻ nội dung (giao diện sáng) */
+  --t-bg: #ffffff;
+  --t-surface: #f4f3ef;
+  --t-card: #ffffff;
+  --t-border: #d6d2c6;
+  --t-text: #1a1a18;
+  --t-text1: #1a1a18;
+  --t-text2: #4a4a45;
+  --t-faint: #666660;
+  --t-gold: #7a5a0e;
+  --hoa-loc: #14653a;
+  --hoa-quyen: #1a4f9c;
+  --hoa-khoa: #7a5a00;
+  --hoa-ky: #a02820;
+  --hoa-tim: #6d28d9;
+
   /* 圆角 */
   --r-xs:  4px;
   --r-sm:  8px;
@@ -68,7 +84,7 @@
   --tx-0: #e8eef6;
   --tx-1: #dce4f0;
   --tx-2: #9db0d0;
-  --tx-3: #6a7a96;
+  --tx-3: #8b9ab8;
   --tx-inv: #0d0d0b;
   --tx-inv2: rgba(13,13,11,0.65);
 
@@ -88,6 +104,22 @@
 
   --bg-card: rgba(255,255,255,0.04);
   --bg-page: #020810;
+
+  /* Bàn lá số và thẻ nội dung (giao diện tối) */
+  --t-bg: #0b1222;
+  --t-surface: #111b32;
+  --t-card: #0e1730;
+  --t-border: #26324d;
+  --t-text: #e8eef6;
+  --t-text1: #dce4f0;
+  --t-text2: #b4c2dc;
+  --t-faint: #93a2bf;
+  --t-gold: #e0b955;
+  --hoa-loc: #4ade80;
+  --hoa-quyen: #60a5fa;
+  --hoa-khoa: #facc15;
+  --hoa-ky: #f87171;
+  --hoa-tim: #a78bfa;
 }
 
 /* ─── 全局基础 ───────────────────────────────────────────── */
@@ -434,3 +466,55 @@ body {
    select 本身是半透明底 + 浅色字，Windows 上原生下拉列表是白底，浅灰字配白底看不清（#14） */
 [data-theme="dark"] select { color-scheme: dark; }
 [data-theme="dark"] select option { background-color: var(--bg-2); color: var(--tx-1); }
+
+/* Danh sách thả xuống của các ô chọn ngày, giờ trong biểu mẫu: nền trắng, chữ đen ở cả hai giao diện sáng và tối */
+[data-theme] select.chon-ngay { color-scheme: light; }
+[data-theme] select.chon-ngay option {
+  color: #111111;
+  background-color: #ffffff;
+}
+
+/* Thẻ nội dung của trang lá số */
+.card-glass {
+  background: var(--t-card);
+  border: 1px solid var(--t-border);
+  box-shadow: var(--sh-sm);
+}
+.card-inner {
+  background: var(--t-surface);
+  border: 1px solid var(--t-border);
+}
+
+/* Giao diện sáng: các màu Tailwind thiết kế cho nền tối (vàng nhạt, xanh nhạt...) quá nhạt trên nền trắng,
+   thay bằng bản đậm hơn đạt tỉ lệ tương phản AA (4,5:1). */
+[data-theme="light"] [class*="text-amber-"],
+[data-theme="light"] [class*="text-yellow-"] { color: #7c4a03; }
+[data-theme="light"] [class*="text-orange-"] { color: #a24a05; }
+[data-theme="light"] [class*="text-emerald-"],
+[data-theme="light"] [class*="text-green-"] { color: #14653a; }
+[data-theme="light"] [class*="text-sky-"],
+[data-theme="light"] [class*="text-blue-"] { color: #1d5fa0; }
+[data-theme="light"] [class*="text-red-"] { color: #a02820; }
+[data-theme="light"] [class*="text-purple-"],
+[data-theme="light"] [class*="text-violet-"] { color: #6d28d9; }
+[data-theme="light"] [class*="text-slate-"],
+[data-theme="light"] [class*="text-gray-"] { color: #475569; }
+
+/* Chữ gợi ý trong ô nhập dùng màu chữ phụ đạt AA thay cho màu mặc định của trình duyệt */
+input::placeholder, textarea::placeholder {
+  color: var(--tx-3);
+  opacity: 1;
+}
+
+/* Giao diện tối: các màu Tailwind có độ trong suốt (ví dụ text-red-500/60) quá tối trên nền xanh đen,
+   thay bằng bản sáng hơn đạt tỉ lệ tương phản AA (4,5:1). */
+[data-theme="dark"] [class*="text-red-"] { color: #fca5a5; }
+[data-theme="dark"] [class*="text-sky-"],
+[data-theme="dark"] [class*="text-blue-"] { color: #7dc4f7; }
+[data-theme="dark"] [class*="text-purple-"] { color: #c4b5fd; }
+[data-theme="dark"] [class*="text-emerald-"],
+[data-theme="dark"] [class*="text-green-"] { color: #6ee7b7; }
+[data-theme="dark"] [class*="text-orange-"] { color: #fdba74; }
+[data-theme="dark"] [class*="text-slate-"],
+[data-theme="dark"] [class*="text-gray-"] { color: #cbd5e1; }
+[data-theme="dark"] .text-amber-700\/80 { color: #d9a64a; }
